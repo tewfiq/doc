@@ -611,7 +611,12 @@ function LivingKnowledgeSystemSection() {
             <li key={step} className="relative rounded-md border border-[var(--border)] bg-[var(--surface-subtle)] p-3">
               <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--accent)]">{String(index + 1).padStart(2, '0')}</span>
               <p className="mt-2 text-sm font-medium text-[var(--text)]">{step}</p>
-              {index < page.workflow.length - 1 ? <span className="absolute -right-2 top-1/2 hidden text-[var(--muted)] md:block">↓</span> : null}
+              {index < page.workflow.length - 1 ? (
+                <>
+                  <span className="absolute -bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-[var(--surface)] px-1 text-[var(--muted)] md:hidden">↓</span>
+                  <span className="absolute -right-3 top-1/2 z-10 hidden -translate-y-1/2 rounded-full bg-[var(--surface)] px-1 text-[var(--muted)] md:block">→</span>
+                </>
+              ) : null}
             </li>
           ))}
         </ol>
