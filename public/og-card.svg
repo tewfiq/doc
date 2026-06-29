@@ -1,0 +1,41 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#FFFDF8"/>
+  <rect x="34" y="34" width="1132" height="562" rx="28" fill="#FFFFFF" stroke="#E8E0D3" stroke-width="2"/>
+  <rect x="34" y="34" width="286" height="562" rx="28" fill="#FAF7F0"/>
+  <path d="M320 34V596" stroke="#E8E0D3" stroke-width="2"/>
+
+  <rect x="72" y="78" width="58" height="58" rx="14" fill="#FFF0E8" stroke="#FF6B35" stroke-width="3"/>
+  <text x="101" y="114" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#FF6B35">TF</text>
+  <text x="72" y="180" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#17130F">Documentation</text>
+  <text x="72" y="207" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#17130F">de candidature</text>
+
+  <text x="72" y="266" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" letter-spacing="2" fill="#6F6A61">DEMARRER</text>
+  <rect x="72" y="292" width="190" height="34" rx="8" fill="#FFF0E8" stroke="#FFD2BD"/>
+  <text x="90" y="315" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="700" fill="#FF6B35">Apercu</text>
+  <text x="90" y="363" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="600" fill="#6F6A61">Pratique</text>
+  <text x="90" y="405" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="600" fill="#6F6A61">Connaissances</text>
+  <text x="90" y="447" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="600" fill="#6F6A61">Experience</text>
+
+  <text x="372" y="116" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="800" letter-spacing="2.4" fill="#FF6B35">DESIGNER PRODUIT — DOCUMENTATION</text>
+  <text x="372" y="205" font-family="Inter, Arial, sans-serif" font-size="64" font-weight="760" fill="#17130F">Je conçois la documentation</text>
+  <text x="372" y="282" font-family="Inter, Arial, sans-serif" font-size="64" font-weight="760" fill="#17130F">comme un produit.</text>
+  <text x="374" y="342" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="500" fill="#6F6A61">Systèmes de connaissances, documentation et expériences</text>
+  <text x="374" y="380" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="500" fill="#6F6A61">d’apprentissage pour comprendre et adopter les produits d’IA.</text>
+
+  <rect x="372" y="430" width="215" height="38" rx="19" fill="#FFF0E8" stroke="#FFD2BD"/>
+  <circle cx="394" cy="449" r="5" fill="#FF6B35"/>
+  <text x="410" y="456" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="750" fill="#17130F">Créé avec Mistral Vibe</text>
+  <rect x="601" y="430" width="78" height="38" rx="19" fill="#FFF0E8" stroke="#FFD2BD"/>
+  <text x="627" y="456" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#17130F">Paris</text>
+  <rect x="693" y="430" width="118" height="38" rx="19" fill="#FFF0E8" stroke="#FFD2BD"/>
+  <text x="718" y="456" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#17130F">Disponible</text>
+
+  <rect x="372" y="514" width="146" height="2" fill="#FF6B35"/>
+  <text x="372" y="552" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="700" fill="#17130F">doc.tfq.one</text>
+  <text x="960" y="552" text-anchor="end" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="650" fill="#6F6A61">Tewfiq Ferahi</text>
+
+  <rect x="34" y="588" width="283" height="8" fill="#FFF4D6"/>
+  <rect x="317" y="588" width="283" height="8" fill="#FFD45A"/>
+  <rect x="600" y="588" width="283" height="8" fill="#FF8A3D"/>
+  <rect x="883" y="588" width="283" height="8" fill="#C7361D"/>
+</svg>
