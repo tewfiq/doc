@@ -7,6 +7,7 @@ import {
   experienceCards,
   getPrevNext,
   getRouteByKey,
+  interventionImages,
   knowledgeCards,
   labels,
   languages,
@@ -16,6 +17,7 @@ import {
   principles,
   routes,
   shared,
+  trackRecordScreenshots,
   workflowSteps,
 } from '../lib/docsContent';
 
@@ -344,7 +346,7 @@ function PageHeader({ page, children }) {
     <header className="mb-8 border-b border-[var(--border)] pb-8">
       <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">{page.crumb[language]}</p>
       <h1 className="max-w-[760px] text-4xl font-semibold leading-tight tracking-normal text-[var(--text)] sm:text-5xl">{page.title[language]}</h1>
-      {page.subtitle ? <p className="mt-5 max-w-[760px] text-base leading-7 text-[var(--muted)] sm:text-lg">{page.subtitle[language]}</p> : null}
+      {page.subtitle ? <p className="mt-5 max-w-[760px] text-base leading-7 text-[var(--muted)] sm:text-lg"><TextWithMistralLogo text={page.subtitle[language]} /></p> : null}
       {children}
     </header>
   );
@@ -364,6 +366,7 @@ function PageRenderer({ pageKey, page }) {
 
 function HomePage({ page }) {
   const { language, t } = useLanguage();
+  const sectionTitle = (id) => page.sections.find((section) => section.id === id)?.title[language] || id;
   const proof = {
     FR: ['10+ ans de design produit', '1 500+ étudiants formés', '1 128 solutions d’IA documentées', '4 655+ contributions GitHub'],
     EN: ['10+ years Product Design', '1,500+ students trained', '1,128 AI solutions documented', '4,655+ GitHub contributions'],
@@ -412,13 +415,17 @@ function HomePage({ page }) {
         </div>
       </PageHeader>
 
-      <Section id="metadata" title={page.sections[0].title[language]}>
+      <Section id="metadata" title={sectionTitle('metadata')}>
         <MetadataTable rows={metadata[language]} />
         <Callout variant="information">
           {language === 'FR'
             ? 'Ce site est volontairement conçu comme un produit de documentation plutôt qu’un portfolio traditionnel. Il montre mon approche de l’architecture de l’information, des expériences d’apprentissage et de l’adoption produit.'
             : 'This website is intentionally designed as a documentation product rather than a traditional portfolio. It demonstrates how I approach information architecture, learning experiences and product adoption.'}
         </Callout>
+      </Section>
+
+      <Section id="interventions" title={sectionTitle('interventions')}>
+        <InterventionSlideshow images={interventionImages[language]} />
       </Section>
 
       <Section id="quick-links" title={t.quickLinks}>
@@ -451,6 +458,9 @@ function TrackRecordPage({ page }) {
       </Section>
       <Section id="heatmap" title={page.sections[1].title[language]}>
         <Heatmap />
+      </Section>
+      <Section id="screenshots" title={page.sections[2].title[language]}>
+        <EvidenceGrid images={trackRecordScreenshots[language]} />
       </Section>
       <RelatedLinks keys={['knowledgeSystem', 'education']} title={t.related} />
     </>
@@ -532,10 +542,8 @@ function ExperienceDetailPage({ page }) {
           </Section>
         );
       })}
-      <Section id="media" title={language === 'FR' ? 'Médias à intégrer' : 'Media placeholders'}>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {page.media[language].map((item) => <div key={item} className="rounded-lg border border-dashed border-[var(--border-strong)] bg-[var(--surface-subtle)] p-8 text-sm text-[var(--muted)]">{item}</div>)}
-        </div>
+      <Section id="media" title={language === 'FR' ? 'Images de terrain' : 'Field images'}>
+        <MediaGrid images={page.media[language]} />
       </Section>
     </>
   );
@@ -592,17 +600,36 @@ function Button({ href, children, variant = 'primary' }) {
 }
 
 function Chip({ children }) {
-  return <span className="rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--text)]">{children}</span>;
+  return <span className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-medium text-[var(--text)]">{children}</span>;
+}
+
+function MistralLogo({ className = 'h-3.5 w-3.5' }) {
+  return <img src="/mistral-color.svg" alt="" aria-hidden="true" className={cn('shrink-0', className)} />;
 }
 
 function MistralVibeChip() {
   const { language } = useLanguage();
   return (
     <span className="inline-flex items-center gap-2 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--text)]">
-      <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+      <MistralLogo />
       {shared.mistralVibe[language]}
     </span>
   );
+}
+
+function TextWithMistralLogo({ text }) {
+  if (!text.includes('Mistral')) return text;
+
+  const parts = text.split(/(Mistral(?: AI| Vibe)?)/g);
+  return parts.map((part, index) => {
+    if (!part.startsWith('Mistral')) return part;
+    return (
+      <span key={`${part}-${index}`} className="inline-flex items-baseline gap-1.5 whitespace-nowrap font-medium text-[var(--text)]">
+        <MistralLogo className="relative top-0.5 h-3.5 w-3.5" />
+        {part}
+      </span>
+    );
+  });
 }
 
 function MetadataTable({ rows }) {
@@ -699,6 +726,183 @@ function PrincipleCard({ title, definition, why }) {
 
 function BulletList({ items }) {
   return <ul className="grid gap-3 sm:grid-cols-2">{items.map((item) => <li key={item} className="flex gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 text-sm text-[var(--muted)]"><span className="mt-2 h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />{item}</li>)}</ul>;
+}
+
+function InterventionSlideshow({ images }) {
+  const { language } = useLanguage();
+  const [slides, setSlides] = useState(images);
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const shuffled = [...images].sort(() => Math.random() - 0.5);
+    setSlides(shuffled);
+    setActive(0);
+    setReady(false);
+
+    const preload = async () => {
+      const preview = shuffled.slice(0, 2);
+      await Promise.all(
+        preview.map(
+          (image) =>
+            new Promise((resolve) => {
+              const loaded = new window.Image();
+              loaded.onload = resolve;
+              loaded.onerror = resolve;
+              loaded.src = image.src;
+            })
+        )
+      );
+      window.setTimeout(() => setReady(true), 220);
+    };
+
+    const timer = window.setTimeout(preload, 120);
+    return () => window.clearTimeout(timer);
+  }, [images]);
+
+  useEffect(() => {
+    if (!ready || paused || slides.length < 2) return undefined;
+    let intervalId = null;
+    const startId = window.setTimeout(() => {
+      intervalId = window.setInterval(() => {
+        setActive((index) => {
+          const next = index + 1;
+          if (next >= slides.length) {
+            const reshuffled = [...images].sort(() => Math.random() - 0.5);
+            setSlides(reshuffled);
+            return 0;
+          }
+          return next;
+        });
+      }, 4200);
+    }, 1400);
+    return () => {
+      window.clearTimeout(startId);
+      if (intervalId) window.clearInterval(intervalId);
+    };
+  }, [paused, ready, slides.length, images]);
+
+  const goTo = (index) => setActive((index + slides.length) % slides.length);
+  const primarySlide = slides[active] || slides[0];
+
+  if (!primarySlide) return null;
+
+  return (
+    <div
+      className={cn(
+        'overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)] transition duration-500',
+        ready ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
+      )}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
+      <div className="grid gap-0 lg:grid-cols-[minmax(0,0.98fr)_minmax(280px,1fr)]">
+        <figure className="bg-[var(--surface)]">
+          <div className="relative overflow-hidden bg-[var(--surface-subtle)]">
+            <img
+              src={primarySlide.src}
+              alt={primarySlide.alt}
+              loading="lazy"
+              className={cn(
+                'aspect-[3/4] w-full object-cover object-top transition duration-500 ease-out sm:aspect-[4/5] lg:aspect-[3/4]',
+                ready ? 'animate-[slideshow-fade_420ms_ease-out]' : ''
+              )}
+            />
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/25 to-transparent" />
+            <div className="absolute bottom-3 left-3 rounded-full border border-white/20 bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-[#17130f] shadow-sm">
+              {String(active + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}
+            </div>
+          </div>
+          <figcaption className="border-t border-[var(--border)] px-4 py-3 text-xs font-medium text-[var(--muted)]">
+            {primarySlide.caption}
+          </figcaption>
+        </figure>
+        <div className="flex min-h-[260px] flex-col justify-between border-t border-[var(--border)] p-4 lg:border-l lg:border-t-0">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
+              {language === 'FR' ? 'Preuve terrain' : 'Field evidence'}
+            </p>
+            <h3 className="mt-3 text-base font-semibold leading-6 text-[var(--text)]">{primarySlide.caption}</h3>
+            <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+              {language === 'FR'
+                ? 'Interventions, ateliers, cours et masterclass documentés comme traces concrètes de transmission.'
+                : 'Talks, workshops, courses and masterclasses documented as concrete traces of teaching practice.'}
+            </p>
+            <div className="mt-5 grid gap-2 text-sm text-[var(--muted)]">
+              {slides.slice(0, 3).map((slide) => (
+                <div key={slide.src} className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
+                  <span className="truncate">{slide.caption}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="mt-5 flex items-center justify-between gap-3">
+            <div className="flex gap-1.5">
+              {slides.map((slide, index) => (
+                <button
+                  key={slide.src}
+                  type="button"
+                  onClick={() => goTo(index)}
+                  className={cn(
+                    'h-1.5 rounded-full transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
+                    active === index ? 'w-6 bg-[var(--accent)]' : 'w-1.5 bg-[var(--border-strong)] hover:bg-[var(--muted)]'
+                  )}
+                  aria-label={language === 'FR' ? `Afficher l’intervention ${index + 1}` : `Show intervention ${index + 1}`}
+                />
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button type="button" onClick={() => goTo(active - 1)} className="grid h-8 w-8 place-items-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-sm text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]" aria-label={language === 'FR' ? 'Intervention précédente' : 'Previous intervention'}>←</button>
+              <button type="button" onClick={() => goTo(active + 1)} className="grid h-8 w-8 place-items-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-sm text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]" aria-label={language === 'FR' ? 'Intervention suivante' : 'Next intervention'}>→</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MediaGrid({ images }) {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2">
+      {images.map((image) => (
+        <figure key={image.src} className="overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)]">
+          <img src={image.src} alt={image.alt} loading="lazy" className="h-56 w-full object-cover" />
+          <figcaption className="border-t border-[var(--border)] px-4 py-3 text-xs font-medium text-[var(--muted)]">
+            {image.caption}
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+  );
+}
+
+function EvidenceGrid({ images }) {
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      {images.map((image) => (
+        <a
+          key={image.src}
+          href={image.src}
+          target="_blank"
+          rel="noreferrer"
+          className="group overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)] transition hover:border-[var(--accent-border)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+        >
+          <span className="block bg-[var(--surface-subtle)]">
+            <img src={image.src} alt={image.alt} loading="lazy" className="h-52 w-full object-cover object-top transition duration-200 group-hover:scale-[1.01]" />
+          </span>
+          <span className="flex items-center justify-between gap-3 border-t border-[var(--border)] px-4 py-3 text-xs font-medium text-[var(--muted)]">
+            <span>{image.caption}</span>
+            <span className="text-[var(--accent)]">↗</span>
+          </span>
+        </a>
+      ))}
+    </div>
+  );
 }
 
 function DocSurface({ children }) {
