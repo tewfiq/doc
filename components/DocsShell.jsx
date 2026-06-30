@@ -113,7 +113,7 @@ const pageCoverMap = {
   '/experience': { image: '/covers/cover-06.webp' },
   '/resume': { image: '/covers/cover-04.webp' },
   '/contact': { image: '/covers/cover-02.webp' },
-  '/experience/dinum': { image: experienceCoverMap['/experience/dinum'], position: 'center calc(50% + 250px)' },
+  '/experience/dinum': { image: experienceCoverMap['/experience/dinum'], position: 'center calc(50% + 200px)' },
   '/experience/bnp-paribas': { image: experienceCoverMap['/experience/bnp-paribas'] },
   '/experience/education': { image: experienceCoverMap['/experience/education'] },
 };
