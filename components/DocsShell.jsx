@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
   buildSearchIndex,
   defaultLanguage,
@@ -188,8 +188,6 @@ function AppShell({ pageKey }) {
       <Header
         onMenu={() => setMobileNavOpen((value) => !value)}
         onSearch={() => setSearchOpen(true)}
-        onTogglePanels={() => setPanelsOpen((value) => !value)}
-        panelsOpen={panelsOpen}
       />
       <div
         className={cn(
@@ -198,7 +196,7 @@ function AppShell({ pageKey }) {
         )}
       >
         {mobileNavOpen ? <button type="button" aria-label="Close navigation" className="fixed inset-0 z-30 bg-black/25 lg:hidden" onClick={() => setMobileNavOpen(false)} /> : null}
-        <Sidebar currentKey={pageKey} mobileOpen={mobileNavOpen} panelsOpen={panelsOpen} onNavigate={() => setMobileNavOpen(false)} />
+        <Sidebar currentKey={pageKey} mobileOpen={mobileNavOpen} panelsOpen={panelsOpen} onNavigate={() => setMobileNavOpen(false)} onTogglePanels={() => setPanelsOpen((value) => !value)} />
         <main className={cn('min-w-0 px-4 py-14 sm:px-6 lg:px-8 xl:py-14', panelsOpen ? 'xl:pl-10 xl:pr-8' : 'xl:pl-12 xl:pr-12')}>
           <div className="mx-auto max-w-[900px]">
             <Breadcrumbs pageKey={pageKey} />
@@ -208,20 +206,30 @@ function AppShell({ pageKey }) {
         </main>
         <RightToc sections={page.sections || []} panelsOpen={panelsOpen} />
       </div>
+      {!panelsOpen && (
+        <button
+          type="button"
+          onClick={() => setPanelsOpen(true)}
+          className="fixed bottom-6 left-6 z-50 hidden rounded-full border border-[var(--border)] bg-[var(--surface)] p-2.5 text-[var(--muted)] shadow-lg transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] xl:grid xl:place-items-center"
+          aria-label={language === 'FR' ? 'Ouvrir les panneaux' : 'Expand panels'}
+        >
+          <SidebarExpandIcon />
+        </button>
+      )}
       <Footer />
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} language={language} />
     </div>
   );
 }
 
-function Header({ onMenu, onSearch, onTogglePanels, panelsOpen }) {
+function Header({ onMenu, onSearch }) {
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme } = useTheme();
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur">
-      <div className="mx-auto grid h-16 max-w-[1440px] grid-cols-[minmax(0,0.68fr)_minmax(260px,340px)_minmax(0,1fr)] items-center gap-2 px-4 sm:px-6 lg:px-8 xl:gap-3">
-        <div className="flex min-w-0 items-center gap-2.5 justify-self-start">
+      <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-3 px-4 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-2.5">
           <button
             type="button"
             onClick={onMenu}
@@ -231,44 +239,34 @@ function Header({ onMenu, onSearch, onTogglePanels, panelsOpen }) {
             <MenuIcon />
           </button>
           <Link href="/" className="flex min-w-0 items-center gap-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]">
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-[var(--accent-border)] bg-[var(--accent-soft)] text-xs font-semibold text-[var(--accent)]">
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[10px] font-semibold text-[var(--accent)]">
               TF
             </span>
-            <span className="min-w-0 max-w-[160px]">
-              <span className="block truncate text-[0.87rem] font-semibold leading-5 text-[var(--text)]">Knowledge Engineering</span>
-              <span className="hidden truncate text-[10px] leading-4 text-[var(--muted)] 2xl:block">{t.footerRole}</span>
+            <span className="hidden min-w-0 sm:block">
+              <span className="block truncate text-sm font-semibold leading-5 text-[var(--text)]">Knowledge Engineering</span>
             </span>
           </Link>
         </div>
 
-        <div className="flex w-full max-w-[340px] justify-center justify-self-center">
+        <div className="mx-auto w-full max-w-[340px]">
           <button
             type="button"
             onClick={onSearch}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-[var(--accent-border)] bg-[var(--surface)] px-3 py-2 text-[0.9rem] font-medium text-[var(--muted)] transition hover:-translate-y-0.5 hover:bg-[var(--accent-soft)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+            className="inline-flex w-full items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
             aria-label={t.openSearch}
           >
             <SearchIcon />
-            <span className="truncate">{language === 'FR' ? 'Rechercher / Search' : 'Search / Rechercher'}</span>
+            <span className="flex-1 truncate text-left text-xs">{language === 'FR' ? 'Rechercher…' : 'Search…'}</span>
+            <kbd className="hidden rounded border border-[var(--border)] bg-[var(--bg)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted)] sm:inline">⌘K</kbd>
           </button>
         </div>
 
-        <div className="flex min-w-0 items-center justify-end gap-1 justify-self-end xl:gap-1.5">
-          <button
-            type="button"
-            onClick={onTogglePanels}
-            className="hidden items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--surface)] px-2.25 py-1.75 text-[11px] font-semibold text-[var(--muted)] transition hover:-translate-y-0.5 hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] xl:inline-flex"
-            aria-pressed={panelsOpen}
-            aria-label={panelsOpen ? (language === 'FR' ? 'Rétracter les panneaux' : 'Collapse panels') : (language === 'FR' ? 'Ouvrir les panneaux' : 'Expand panels')}
-          >
-            <PanelsIcon open={panelsOpen} />
-            <span>{panelsOpen ? (language === 'FR' ? 'Panels' : 'Panels') : (language === 'FR' ? 'Open' : 'Open')}</span>
-          </button>
+        <div className="flex shrink-0 items-center gap-1">
           <LanguageToggle language={language} setLanguage={setLanguage} />
           <ThemeToggle theme={theme} setTheme={setTheme} />
           <a
             href={shared.ctaUrl}
-            className="hidden shrink-0 whitespace-nowrap rounded-md bg-[var(--accent)] px-2.25 py-1.5 text-[0.82rem] font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[var(--accent-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] sm:inline-flex"
+            className="hidden shrink-0 whitespace-nowrap rounded-md bg-[var(--accent)] px-2.5 py-1.5 text-xs font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[var(--accent-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] sm:inline-flex"
           >
             {t.book}
           </a>
@@ -280,61 +278,63 @@ function Header({ onMenu, onSearch, onTogglePanels, panelsOpen }) {
 
 function LanguageToggle({ language, setLanguage }) {
   const { t } = useLanguage();
+  const next = language === 'FR' ? 'EN' : 'FR';
   return (
-    <div className="inline-flex rounded-md border border-[var(--border)] bg-[var(--surface)] p-0.5" aria-label={t.language}>
-      {languages.map((item) => (
-        <button
-          key={item}
-          type="button"
-          onClick={() => setLanguage(item)}
-          className={cn(
-            'rounded px-2.5 py-1.5 text-xs font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
-            language === item ? 'bg-[var(--accent-soft)] text-[var(--accent)]' : 'text-[var(--muted)] hover:text-[var(--text)]'
-          )}
-        >
-          {item}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      onClick={() => setLanguage(next)}
+      className="grid h-8 w-8 place-items-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-[11px] font-semibold text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      aria-label={`${t.language}: ${next}`}
+    >
+      {language}
+    </button>
   );
 }
 
 function ThemeToggle({ theme, setTheme }) {
   const { t } = useLanguage();
-  const options = ['light', 'system', 'dark'];
+  const cycle = { light: 'dark', dark: 'system', system: 'light' };
+  const next = cycle[theme] || 'light';
+  const icons = {
+    light: <SunIcon />,
+    dark: <MoonIcon />,
+    system: <MonitorIcon />,
+  };
   return (
-    <div className="inline-flex rounded-md border border-[var(--border)] bg-[var(--surface)] p-0.5" aria-label={t.theme}>
-      {options.map((option) => (
-        <button
-          key={option}
-          type="button"
-          onClick={() => setTheme(option)}
-          className={cn(
-            'rounded px-2.5 py-1.5 text-xs font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
-            theme === option ? 'bg-[var(--accent-soft)] text-[var(--accent)]' : 'text-[var(--muted)] hover:text-[var(--text)]'
-          )}
-          aria-pressed={theme === option}
-        >
-          {t[option]}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      onClick={() => setTheme(next)}
+      className="grid h-8 w-8 place-items-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      aria-label={`${t.theme}: ${t[theme]}`}
+    >
+      {icons[theme]}
+    </button>
   );
 }
 
-function Sidebar({ currentKey, mobileOpen, panelsOpen, onNavigate }) {
+function Sidebar({ currentKey, mobileOpen, panelsOpen, onNavigate, onTogglePanels }) {
   const { language, t } = useLanguage();
   return (
     <aside
       className={cn(
-        'fixed inset-y-16 left-0 z-40 w-[260px] overflow-y-auto border-r border-[var(--border)] bg-[var(--bg)] px-4 py-5 transition-[transform,opacity] duration-200 lg:sticky lg:block lg:h-[calc(100dvh-4rem)] lg:px-5 xl:top-16 xl:w-[260px]',
+        'fixed inset-y-14 left-0 z-40 w-[260px] overflow-y-auto border-r border-[var(--border)] bg-[var(--bg)] px-4 py-5 transition-[transform,opacity] duration-200 lg:sticky lg:block lg:h-[calc(100dvh-3.5rem)] lg:px-5 xl:top-14 xl:w-[260px]',
         mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         panelsOpen ? 'xl:translate-x-0 xl:opacity-100 xl:pointer-events-auto' : 'xl:-translate-x-full xl:opacity-0 xl:pointer-events-none'
       )}
     >
-      <div className="mb-5">
-        <p className="text-sm font-semibold text-[var(--text)]">{labels[language].sidebarTitle}</p>
-        <p className="text-sm text-[var(--muted)]">{labels[language].sidebarSubtitle}</p>
+      <div className="mb-5 flex items-start justify-between gap-2">
+        <div>
+          <p className="text-sm font-semibold text-[var(--text)]">{labels[language].sidebarTitle}</p>
+          <p className="text-sm text-[var(--muted)]">{labels[language].sidebarSubtitle}</p>
+        </div>
+        <button
+          type="button"
+          onClick={onTogglePanels}
+          className="hidden shrink-0 rounded-md p-1.5 text-[var(--muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] xl:grid xl:place-items-center"
+          aria-label={language === 'FR' ? 'Rétracter les panneaux' : 'Collapse panels'}
+        >
+          <SidebarCollapseIcon />
+        </button>
       </div>
       <nav className="space-y-6" aria-label={t.navigation}>
         {navGroups.map((group) => (
@@ -384,7 +384,7 @@ function RightToc({ sections, panelsOpen }) {
         panelsOpen ? 'xl:translate-x-0 xl:opacity-100 xl:pointer-events-auto' : 'xl:translate-x-full xl:opacity-0 xl:pointer-events-none'
       )}
     >
-      <div className="sticky top-16 px-5 py-8">
+      <div className="sticky top-14 px-5 py-8">
         <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{t.onThisPage}</p>
         <nav className="space-y-0.5 border-l border-[var(--border)] pl-3" aria-label={t.onThisPage}>
           {sections.map((section) => (
@@ -1064,7 +1064,7 @@ function DoDontPage({ page }) {
           <Section key={entry.key} id={entry.key} title={entry.label}>
             <div className="grid gap-4 md:grid-cols-2">
               <ComparisonCard label="Do" text={pair.do[language]} />
-              <ComparisonCard label="Don’t" text={pair.dont[language]} negative />
+              <ComparisonCard label="Don't" text={pair.dont[language]} negative />
             </div>
           </Section>
         );
@@ -1080,7 +1080,7 @@ function PatternsPage({ page }) {
     [page.sections[1].title[language], language === 'FR' ? 'Une expérience lisible, avec métadonnées, preuves et liens.' : 'A readable experience with metadata, proof and links.'],
     [page.sections[2].title[language], language === 'FR' ? 'Un bloc réutilisable pour nom, titre et capacité à lire vite.' : 'A reusable block for name, title and fast scanning.'],
     [page.sections[3].title[language], language === 'FR' ? 'Petits groupes de faits vérifiables, jamais de bruit décoratif.' : 'Small groups of verifiable facts, never decorative noise.'],
-    [page.sections[4].title[language], language === 'FR' ? "Un point d’attention, un label, puis une explication utile." : 'One point of attention, one label, then a useful explanation.'],
+    [page.sections[4].title[language], language === 'FR' ? "Un point d'attention, un label, puis une explication utile." : 'One point of attention, one label, then a useful explanation.'],
     [page.sections[5].title[language], language === 'FR' ? 'Toujours garder une direction de lecture claire.' : 'Always keep a clear reading direction.'],
     [page.sections[6].title[language], language === 'FR' ? 'Les liens donnent le contexte, le système devient navigable.' : 'Links provide context and make the system navigable.'],
   ];
@@ -1626,68 +1626,116 @@ function PrevNextLink({ label, route, language, alignRight }) {
 function SearchModal({ open, onClose, language }) {
   const { t } = useLanguage();
   const [query, setQuery] = useState('');
+  const [selected, setSelected] = useState(0);
   const router = useRouter();
+  const listRef = useRef(null);
   const searchIndex = useMemo(() => buildSearchIndex(language), [language]);
-  const results = searchIndex.filter((item) => `${item.title} ${item.excerpt}`.toLowerCase().includes(query.toLowerCase())).slice(0, 8);
+  const results = query
+    ? searchIndex.filter((item) => `${item.title} ${item.excerpt}`.toLowerCase().includes(query.toLowerCase())).slice(0, 10)
+    : [];
+
+  const quickLinks = useMemo(() => [
+    ...routes.filter((r) => r.key !== 'home').map((r) => ({ path: r.path, title: r.name[language], excerpt: pages[r.key]?.subtitle?.[language] || '' })),
+  ], [language]);
+
+  const displayItems = query ? results : quickLinks;
 
   useEffect(() => {
-    if (!open) setQuery('');
+    if (!open) { setQuery(''); setSelected(0); }
   }, [open]);
+
+  useEffect(() => {
+    setSelected(0);
+  }, [query]);
+
+  const navigate = useCallback((path) => {
+    onClose();
+    const [pagePath, hash] = path.split('#');
+    const target = pagePath || '/';
+    if (hash && (router.asPath.split('#')[0] === target || (target === '/' && router.asPath.split('#')[0] === '/'))) {
+      const el = document.getElementById(hash);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        window.history.replaceState(null, '', `${target}#${hash}`);
+        return;
+      }
+    }
+    if (hash) {
+      router.push(`${target}#${hash}`).then(() => {
+        setTimeout(() => {
+          const el = document.getElementById(hash);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+      });
+    } else {
+      router.push(target);
+    }
+  }, [onClose, router]);
+
+  const onKeyDown = (event) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setSelected((s) => Math.min(s + 1, displayItems.length - 1));
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setSelected((s) => Math.max(s - 1, 0));
+    } else if (event.key === 'Enter' && displayItems[selected]) {
+      event.preventDefault();
+      navigate(displayItems[selected].path);
+    }
+  };
+
+  useEffect(() => {
+    if (!listRef.current) return;
+    const active = listRef.current.querySelector('[data-active="true"]');
+    if (active) active.scrollIntoView({ block: 'nearest' });
+  }, [selected]);
 
   if (!open) return null;
 
-  const navigate = (path) => {
-    onClose();
-    router.push(path);
-  };
-
   return (
-    <div className="fixed inset-0 z-[80] bg-black/35 p-4" role="dialog" aria-modal="true" aria-label={t.search}>
-      <div className="mx-auto mt-20 max-w-xl overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xl">
-        <div className="flex items-center gap-3 border-b border-[var(--border)] p-4">
+    <div className="fixed inset-0 z-[80] bg-black/35 p-4" role="dialog" aria-modal="true" aria-label={t.search} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="mx-auto mt-[12vh] max-w-xl overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xl">
+        <div className="flex items-center gap-3 border-b border-[var(--border)] px-4 py-3">
+          <SearchIcon />
           <input
             autoFocus
             value={query}
             onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={onKeyDown}
             placeholder={t.searchPlaceholder}
             className="min-w-0 flex-1 bg-transparent text-sm text-[var(--text)] outline-none placeholder:text-[var(--muted)]"
           />
-          <button type="button" onClick={onClose} className="rounded-md px-2 py-1 text-xs text-[var(--muted)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]">
-            {t.close}
-          </button>
+          <kbd className="rounded border border-[var(--border)] bg-[var(--bg)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted)] cursor-pointer" onClick={onClose}>
+            esc
+          </kbd>
         </div>
-        <div className="max-h-[420px] overflow-y-auto p-2">
-          {!query ? (
-            <div className="px-3 py-2">
-              <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{language === 'FR' ? 'Suggestions' : 'Suggestions'}</p>
-              <div className="grid gap-2">
-                {['Documentation as Product', 'Track Record', 'Knowledge Studio', 'DINUM', 'BNP Paribas', 'Education', 'Primitives', "Do & Don’t"].map((item) => (
-                  <button
-                    key={item}
-                    type="button"
-                    onClick={() => setQuery(item)}
-                    className="rounded-lg px-3 py-2 text-left text-sm text-[var(--muted)] hover:bg-[var(--accent-soft)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : null}
-          {results.length ? (
-            results.map((item) => (
+        <div ref={listRef} className="max-h-[420px] overflow-y-auto p-1.5">
+          {!query && (
+            <p className="mb-1 px-3 pt-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{language === 'FR' ? 'Pages' : 'Pages'}</p>
+          )}
+          {displayItems.length ? (
+            displayItems.map((item, i) => (
               <button
                 key={`${item.path}-${item.title}`}
                 type="button"
+                data-active={i === selected}
                 onClick={() => navigate(item.path)}
-                className="block w-full rounded-lg p-3 text-left hover:bg-[var(--accent-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+                onMouseEnter={() => setSelected(i)}
+                className={cn(
+                  'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
+                  i === selected ? 'bg-[var(--accent-soft)]' : 'hover:bg-[var(--accent-soft)]/50'
+                )}
               >
-                <span className="block text-sm font-medium text-[var(--text)]">{item.title}</span>
-                <span className="mt-1 block text-xs text-[var(--muted)]">{item.excerpt}</span>
+                <span className="flex-1 min-w-0">
+                  <span className={cn('block text-sm font-medium', i === selected ? 'text-[var(--accent)]' : 'text-[var(--text)]')}>{item.title}</span>
+                  {item.excerpt ? <span className="mt-0.5 block truncate text-xs text-[var(--muted)]">{item.excerpt}</span> : null}
+                </span>
+                {i === selected && <span className="text-xs text-[var(--accent)]">↵</span>}
               </button>
             ))
           ) : query ? (
-            <p className="p-6 text-sm text-[var(--muted)]">{t.noResults}</p>
+            <p className="p-6 text-center text-sm text-[var(--muted)]">{t.noResults}</p>
           ) : null}
         </div>
       </div>
@@ -1793,6 +1841,52 @@ function PanelsClosedIcon() {
     <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="6" y="5" width="12" height="14" rx="1.5" />
       <path d="M9 12h6" />
+    </svg>
+  );
+}
+
+function SunIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+    </svg>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    </svg>
+  );
+}
+
+function MonitorIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="3" width="20" height="14" rx="2" />
+      <path d="M8 21h8M12 17v4" />
+    </svg>
+  );
+}
+
+function SidebarCollapseIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M9 3v18" />
+      <path d="m16 15-3-3 3-3" />
+    </svg>
+  );
+}
+
+function SidebarExpandIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" />
+      <path d="M9 3v18" />
+      <path d="m14 9 3 3-3 3" />
     </svg>
   );
 }
