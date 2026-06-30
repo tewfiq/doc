@@ -1482,6 +1482,18 @@ function ResumePage({ page }) {
             [language === 'FR' ? 'Domaines' : 'Domains', language === 'FR' ? 'Documentation, IA produit, syst\u00e8mes de design, transmission' : 'Documentation, AI product, design systems, teaching'],
           ]}
         />
+        <div className="mt-5">
+          <a
+            href="/CVMISTRALLPD0726.pdf"
+            target="_blank"
+            rel="noreferrer"
+            download
+            className="inline-flex items-center gap-2 rounded-md bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[var(--accent-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+          >
+            <ArrowUpRight className="h-4 w-4" />
+            {language === 'FR' ? 'Télécharger le CV' : 'Download CV'}
+          </a>
+        </div>
       </Section>
     </>
   );
@@ -1489,16 +1501,39 @@ function ResumePage({ page }) {
 
 function ContactPage({ page }) {
   const { language, t } = useLanguage();
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://app.cal.com/embed/embed.js';
+    script.async = true;
+    script.onload = () => {
+      if (window.Cal) {
+        window.Cal('init', 'echange-initial-produit-ux-ai2', { origin: 'https://app.cal.com' });
+        window.Cal.config = window.Cal.config || {};
+        window.Cal.config.forwardQueryParams = true;
+        window.Cal.ns['echange-initial-produit-ux-ai2']('inline', {
+          elementOrSelector: '#my-cal-inline-echange-initial-produit-ux-ai2',
+          config: { layout: 'month_view', useSlotsViewOnSmallScreen: 'true' },
+          calLink: 'tewfiqferahi/echange-initial-produit-ux-ai2',
+        });
+        window.Cal.ns['echange-initial-produit-ux-ai2']('ui', { hideEventTypeDetails: false, layout: 'month_view' });
+      }
+    };
+    document.head.appendChild(script);
+    return () => {
+      script.remove();
+    };
+  }, []);
+
   return (
     <>
       <PageHeader page={page} />
       <Section id="contact-options" title={page.sections[0].title[language]}>
-        <div className="flex flex-wrap gap-3">
-          <Button href={shared.ctaUrl}>{t.book}</Button>
-          <Button href="mailto:hello@tewfiq.com" variant="secondary">
-            {t.email}
-          </Button>
-        </div>
+        <div
+          id="my-cal-inline-echange-initial-produit-ux-ai2"
+          className="w-full overflow-auto rounded-[var(--radius-card)] border border-[var(--border)]"
+          style={{ minHeight: 600 }}
+        />
       </Section>
     </>
   );
@@ -1964,9 +1999,6 @@ function Footer() {
             </a>
             <a className="text-[var(--muted)] hover:text-[var(--accent)]" href="/CVMISTRALLPD0726.pdf" target="_blank" rel="noreferrer" download>
               CV
-            </a>
-            <a className="text-[var(--muted)] hover:text-[var(--accent)]" href="mailto:hello@tewfiq.com">
-              {language === 'FR' ? 'E-mail' : 'Email'}
             </a>
           </nav>
         </div>
