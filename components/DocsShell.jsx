@@ -1400,7 +1400,7 @@ function Heatmap() {
 
 function WorkflowDiagram({ steps }) {
   return (
-    <ol className="grid gap-6 md:grid-cols-7 md:gap-5">
+    <ol className="grid gap-6 md:grid-cols-6 md:gap-6">
       {steps.map((step, index) => (
         <li key={step} className="relative rounded-md border border-[var(--accent-border)] bg-[var(--accent-soft)] p-3">
           <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--accent)]">{String(index + 1).padStart(2, '0')}</span>
