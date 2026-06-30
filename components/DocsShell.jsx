@@ -1407,12 +1407,12 @@ function WorkflowDiagram({ steps }) {
           <p className="mt-2 text-sm font-medium text-[var(--text)]">{step}</p>
           {index < steps.length - 1 ? (
             <>
-              <span className="absolute -bottom-4 left-1/2 z-10 -translate-x-1/2 text-sm text-[var(--accent)] md:hidden">
-                ↓
-              </span>
-              <span className="absolute -right-3.5 top-1/2 z-10 hidden -translate-y-1/2 text-sm text-[var(--accent)] md:block">
-                →
-              </span>
+              <svg className="absolute -bottom-5 left-1/2 z-10 h-4 w-3 -translate-x-1/2 text-[var(--accent)] md:hidden" viewBox="0 0 12 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 1v12M2 10l4 4 4-4" />
+              </svg>
+              <svg className="absolute -right-5 top-1/2 z-10 hidden h-3 w-5 -translate-y-1/2 text-[var(--accent)] md:block" viewBox="0 0 20 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M1 6h16M14 2l4 4-4 4" />
+              </svg>
             </>
           ) : null}
         </li>
