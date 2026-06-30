@@ -57,15 +57,6 @@ const homeSlides = [
     },
   },
   {
-    id: 'dinum',
-    src: '/images/dimum/La Dinum.webp',
-    alt: 'Contexte DINUM',
-    caption: {
-      FR: 'Service public \u00b7 gouvernance UX, DSFR et accessibilit\u00e9 \u00e0 l\u2019\u00e9chelle.',
-      EN: 'Public sector \u00b7 UX governance, DSFR and accessibility at scale.',
-    },
-  },
-  {
     id: 'bnp',
     src: '/images/bnpp/BNP Paribas Design Sprint 2.0.webp',
     alt: 'Design Sprint BNP Paribas',
