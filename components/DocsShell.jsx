@@ -417,10 +417,11 @@ const QUOTES = [
 ];
 
 function RotatingQuote({ language }) {
-  const [index, setIndex] = useState(() => Math.floor(Math.random() * QUOTES.length));
+  const [index, setIndex] = useState(0);
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
+    setIndex(Math.floor(Math.random() * QUOTES.length));
     const timer = setInterval(() => {
       setVisible(false);
       setTimeout(() => {
