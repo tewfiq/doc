@@ -1,28 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #fffaf3;
+  --bg: #F8F6F2;
   --surface: #ffffff;
-  --surface-subtle: #fbf6ee;
-  --text: #17130f;
+  --surface-subtle: #f3f0ea;
+  --text: #151515;
   --muted: #69645d;
   --border: #e6dccb;
   --border-strong: #d4c6b2;
-  --accent: #ff6b35;
+  --accent: #FF6B2C;
   --accent-hover: #e55a2b;
   --accent-soft: #fff0e8;
   --accent-border: #ffd2bd;
+  --radius-card: 20px;
 }
 
 html.dark {
-  --bg: #100f0d;
-  --surface: #171512;
-  --surface-subtle: #1d1a16;
-  --text: #f7f1e8;
+  --bg: #111111;
+  --surface: #1a1a1a;
+  --surface-subtle: #1f1f1f;
+  --text: #FFFFFF;
   --muted: #b7afa4;
-  --border: #302b25;
-  --border-strong: #484039;
-  --accent: #ff875a;
+  --border: #2a2a2a;
+  --border-strong: #3a3a3a;
+  --accent: #FF7B39;
   --accent-hover: #ff9a73;
   --accent-soft: #2b1b14;
   --accent-border: #66341f;
@@ -70,6 +71,48 @@ body {
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes card-lift {
+  from {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+  to {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.10);
+  }
+}
+
+@keyframes image-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.03);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

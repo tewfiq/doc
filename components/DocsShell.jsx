@@ -1,23 +1,30 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, ArrowUpRight, BookOpen, ChevronLeft, ChevronRight, Clock, ExternalLink, Menu, Monitor, Moon, Search, Sun, X, Check, PanelLeftClose, PanelLeftOpen, Quote } from 'lucide-react';
 import {
   buildSearchIndex,
   defaultLanguage,
+  discoverCards,
   experienceCards,
   getPrevNext,
   getRouteByKey,
+  homePrinciples,
   interventionImages,
   knowledgeCards,
   labels,
   languages,
+  latestObjects,
   metrics,
   navGroups,
   pages,
   principles,
   proofBadges,
+  quickstartCards,
   routes,
   shared,
+  testimonials,
   trackRecordScreenshots,
   workflowSteps,
 } from '../lib/docsContent';
@@ -102,12 +109,36 @@ const pageCoverMap = {
   '/knowledge-system': { image: '/covers/cover-07.webp' },
   '/primitives': { image: '/covers/cover-08.webp' },
   '/experience': { image: '/covers/cover-06.webp' },
+  '/experiments': { image: '/covers/cover-08.webp' },
   '/resume': { image: '/covers/cover-04.webp' },
   '/contact': { image: '/covers/cover-02.webp' },
-  '/experience/dinum': { image: experienceCoverMap['/experience/dinum'], position: 'center calc(50% + 200px)' },
+  '/experience/dinum': { image: experienceCoverMap['/experience/dinum'] },
   '/experience/bnp-paribas': { image: experienceCoverMap['/experience/bnp-paribas'] },
   '/experience/education': { image: experienceCoverMap['/experience/education'] },
 };
+
+/* ─── Framer Motion Variants ─── */
+const fadeInUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+};
+
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+};
+
+const cardHover = {
+  rest: { y: 0, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
+  hover: { y: -3, boxShadow: '0 16px 40px rgba(0,0,0,0.10)', transition: { duration: 0.25, ease: 'easeOut' } },
+};
+
+const imageHover = {
+  rest: { scale: 1 },
+  hover: { scale: 1.03, transition: { duration: 0.5, ease: 'easeOut' } },
+};
+
+/* ─── Providers ─── */
 
 function ThemeProvider({ children }) {
   const [theme, setTheme] = useState('system');
@@ -150,12 +181,15 @@ export default function DocsPage({ pageKey }) {
   );
 }
 
+/* ─── App Shell ─── */
+
 function AppShell({ pageKey }) {
   const { language } = useLanguage();
   const page = pages[pageKey] || pages.home;
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [panelsOpen, setPanelsOpen] = useState(true);
+  const isHome = pageKey === 'home';
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -183,19 +217,26 @@ function AppShell({ pageKey }) {
       <div
         className={cn(
           'mx-auto w-full max-w-[1440px] xl:grid xl:gap-x-8',
-          panelsOpen ? 'xl:grid-cols-[260px_minmax(0,900px)_220px]' : 'xl:grid-cols-[0px_minmax(0,1fr)_0px]'
+          isHome
+            ? (panelsOpen ? 'xl:grid-cols-[260px_minmax(0,1fr)_0px]' : 'xl:grid-cols-[0px_minmax(0,1fr)_0px]')
+            : (panelsOpen ? 'xl:grid-cols-[260px_minmax(0,900px)_220px]' : 'xl:grid-cols-[0px_minmax(0,1fr)_0px]')
         )}
       >
         {mobileNavOpen ? <button type="button" aria-label="Close navigation" className="fixed inset-0 z-30 bg-black/25 lg:hidden" onClick={() => setMobileNavOpen(false)} /> : null}
         <Sidebar currentKey={pageKey} mobileOpen={mobileNavOpen} panelsOpen={panelsOpen} onNavigate={() => setMobileNavOpen(false)} onTogglePanels={() => setPanelsOpen((value) => !value)} />
-        <main className={cn('min-w-0 px-4 py-14 sm:px-6 lg:px-8 xl:py-14', panelsOpen ? 'xl:pl-10 xl:pr-8' : 'xl:pl-12 xl:pr-12')}>
-          <div className="mx-auto max-w-[900px]">
-            <Breadcrumbs pageKey={pageKey} />
+        <main className={cn(
+          'min-w-0 px-4 py-14 sm:px-6 lg:px-8 xl:py-14',
+          isHome
+            ? 'xl:pl-10 xl:pr-10'
+            : (panelsOpen ? 'xl:pl-10 xl:pr-8' : 'xl:pl-12 xl:pr-12')
+        )}>
+          <div className={cn(isHome ? 'mx-auto max-w-[1100px]' : 'mx-auto max-w-[900px]')}>
+            {!isHome && <Breadcrumbs pageKey={pageKey} />}
             <PageRenderer pageKey={pageKey} page={page} />
-            <PreviousNext pageKey={pageKey} />
+            {!isHome && <PreviousNext pageKey={pageKey} />}
           </div>
         </main>
-        <RightToc sections={page.sections || []} panelsOpen={panelsOpen} />
+        {!isHome && <RightToc sections={page.sections || []} panelsOpen={panelsOpen} />}
       </div>
       {!panelsOpen && (
         <button
@@ -204,7 +245,7 @@ function AppShell({ pageKey }) {
           className="fixed bottom-6 left-6 z-50 hidden rounded-full border border-[var(--border)] bg-[var(--surface)] p-2.5 text-[var(--muted)] shadow-lg transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] xl:grid xl:place-items-center"
           aria-label={language === 'FR' ? 'Ouvrir les panneaux' : 'Expand panels'}
         >
-          <SidebarExpandIcon />
+          <PanelLeftOpen className="h-4 w-4" />
         </button>
       )}
       <Footer />
@@ -212,6 +253,8 @@ function AppShell({ pageKey }) {
     </div>
   );
 }
+
+/* ─── Header ─── */
 
 function Header({ onMenu, onSearch }) {
   const { language, setLanguage, t } = useLanguage();
@@ -227,14 +270,14 @@ function Header({ onMenu, onSearch }) {
             className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] lg:hidden"
             aria-label={t.navigation}
           >
-            <MenuIcon />
+            <Menu className="h-4 w-4" />
           </button>
           <Link href="/" className="flex min-w-0 items-center gap-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]">
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[10px] font-semibold text-[var(--accent)]">
-              TF
+              KS
             </span>
             <span className="hidden min-w-0 sm:block">
-              <span className="block truncate text-sm font-semibold leading-5 text-[var(--text)]">Knowledge Engineering</span>
+              <span className="block truncate text-sm font-semibold leading-5 text-[var(--text)]">Knowledge Studio</span>
             </span>
           </Link>
         </div>
@@ -246,9 +289,9 @@ function Header({ onMenu, onSearch }) {
             className="inline-flex w-full items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
             aria-label={t.openSearch}
           >
-            <SearchIcon />
+            <Search className="h-4 w-4" />
             <span className="flex-1 truncate text-left text-xs">{language === 'FR' ? 'Rechercher…' : 'Search…'}</span>
-            <kbd className="hidden rounded border border-[var(--border)] bg-[var(--bg)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted)] sm:inline">⌘K</kbd>
+            <kbd className="hidden rounded border border-[var(--border)] bg-[var(--bg)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted)] sm:inline">\u2318K</kbd>
           </button>
         </div>
 
@@ -287,9 +330,9 @@ function ThemeToggle({ theme, setTheme }) {
   const cycle = { light: 'dark', dark: 'system', system: 'light' };
   const next = cycle[theme] || 'light';
   const icons = {
-    light: <SunIcon />,
-    dark: <MoonIcon />,
-    system: <MonitorIcon />,
+    light: <Sun className="h-3.5 w-3.5" />,
+    dark: <Moon className="h-3.5 w-3.5" />,
+    system: <Monitor className="h-3.5 w-3.5" />,
   };
   return (
     <button
@@ -302,6 +345,8 @@ function ThemeToggle({ theme, setTheme }) {
     </button>
   );
 }
+
+/* ─── Sidebar ─── */
 
 function Sidebar({ currentKey, mobileOpen, panelsOpen, onNavigate, onTogglePanels }) {
   const { language, t } = useLanguage();
@@ -324,7 +369,7 @@ function Sidebar({ currentKey, mobileOpen, panelsOpen, onNavigate, onTogglePanel
           className="hidden shrink-0 rounded-md p-1.5 text-[var(--muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] xl:grid xl:place-items-center"
           aria-label={language === 'FR' ? 'Rétracter les panneaux' : 'Collapse panels'}
         >
-          <SidebarCollapseIcon />
+          <PanelLeftClose className="h-4 w-4" />
         </button>
       </div>
       <nav className="space-y-6" aria-label={t.navigation}>
@@ -363,6 +408,8 @@ function Sidebar({ currentKey, mobileOpen, panelsOpen, onNavigate, onTogglePanel
     </aside>
   );
 }
+
+/* ─── Right TOC ─── */
 
 function RightToc({ sections, panelsOpen }) {
   const { language, t } = useLanguage();
@@ -460,6 +507,8 @@ function useActiveSection(ids) {
   return activeId;
 }
 
+/* ─── Breadcrumbs ─── */
+
 function Breadcrumbs({ pageKey }) {
   const { language } = useLanguage();
   const route = getRouteByKey(pageKey);
@@ -467,7 +516,7 @@ function Breadcrumbs({ pageKey }) {
   return (
     <nav className="mb-6 text-xs text-[var(--muted)]" aria-label="Breadcrumb">
       <Link href="/" className="hover:text-[var(--accent)]">
-        Knowledge Engineering
+        Knowledge Studio
       </Link>
       <span className="px-2">/</span>
       <span>{route.name[language]}</span>
@@ -475,12 +524,14 @@ function Breadcrumbs({ pageKey }) {
   );
 }
 
+/* ─── Page Header ─── */
+
 function PageHeader({ page, children }) {
   const { language } = useLanguage();
   const cover = pageCoverMap[page.path] || { variant: 'editorial' };
   return (
     <header className="mb-8 border-b border-[var(--border)] pb-10">
-      <div className="mb-6 overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
+      <div className="mb-6 overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
         <div className="relative isolate h-[180px] sm:h-[220px]">
           {cover.image ? (
             <img src={cover.image} alt="" aria-hidden="true" className="h-full w-full object-cover" style={cover.position ? { objectPosition: cover.position } : undefined} />
@@ -492,11 +543,13 @@ function PageHeader({ page, children }) {
       </div>
       <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">{page.crumb[language]}</p>
       <h1 className="max-w-[820px] text-3xl font-semibold leading-[1.06] tracking-normal text-[var(--text)] sm:text-[2.65rem]">{page.title[language]}</h1>
-      {page.subtitle ? <p className="mt-4 max-w-[760px] text-base leading-7 text-[var(--muted)] sm:text-[1.02rem]">{page.subtitle[language]}</p> : null}
+      {page.subtitle ? <p className="mt-4 max-w-[760px] text-lg leading-7 text-[var(--muted)]">{page.subtitle[language]}</p> : null}
       {children}
     </header>
   );
 }
+
+/* ─── Page Router ─── */
 
 function PageRenderer({ pageKey, page }) {
   if (pageKey === 'home') return <HomePage page={page} />;
@@ -511,79 +564,460 @@ function PageRenderer({ pageKey, page }) {
   if (pageKey === 'primitives') return <PrimitivesPage page={page} />;
   if (pageKey === 'experience') return <ExperienceIndexPage page={page} />;
   if (['dinum', 'bnp', 'education'].includes(pageKey)) return <ExperienceDetailPage pageKey={pageKey} page={page} />;
+  if (pageKey === 'experiments') return <ExperimentsPage page={page} />;
   if (pageKey === 'resume') return <ResumePage page={page} />;
   if (pageKey === 'contact') return <ContactPage page={page} />;
   return <HomePage page={pages.home} />;
 }
 
+/* ─── v7 Homepage ─── */
+
 function HomePage({ page }) {
   const { language, t } = useLanguage();
   const proof = page.proof[language];
   const chips = page.chips[language];
-  const primitiveItems = pages.primitives.items[language];
-  const badges = proofBadges[language];
+  const discover = discoverCards[language];
+  const latest = latestObjects[language];
+  const quickstarts = quickstartCards[language];
+  const fieldCards = experienceCards[language];
+  const studioPage = pages.knowledgeSystem;
+  const pipeline = studioPage.pipeline[language];
+  const principleList = homePrinciples[language];
+  const testimonialList = testimonials[language];
 
   return (
     <>
-      <section className="pb-4 xl:flex xl:items-start xl:pb-10 xl:pt-6">
-        <div className="w-full xl:pt-4">
-          <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">{page.eyebrow[language]}</p>
-          <h1 className="mt-2 max-w-[780px] whitespace-pre-line text-4xl font-semibold leading-[1.02] tracking-normal text-[var(--text)] sm:text-5xl lg:text-[3.6rem]">
-            {page.title[language]}
-          </h1>
-          <p className="mt-2 max-w-[760px] text-base leading-7 text-[var(--muted)] sm:text-[1.02rem]">
-            {page.subtitle[language]}
-          </p>
-          <div className="mt-3 inline-flex items-center rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3 py-1">
-            <span className="text-xs font-semibold text-[var(--accent)]">{page.punchline[language]}</span>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {chips.slice(0, 5).map((chip) => (
-              <Chip key={chip} label={chip} highlight={chip.toLowerCase().includes('mistral')} />
-            ))}
-          </div>
+      {/* ─── Section 1: Hero ─── */}
+      <motion.section
+        className="pb-8 xl:pb-16 xl:pt-8"
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainer}
+      >
+        <motion.p variants={fadeInUp} className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+          {page.eyebrow[language]}
+        </motion.p>
+        <motion.h1 variants={fadeInUp} className="mt-3 max-w-[900px] whitespace-pre-line text-4xl font-semibold leading-[1.02] tracking-[-0.02em] text-[var(--text)] sm:text-5xl lg:text-[4.5rem]">
+          {page.title[language]}
+        </motion.h1>
+        <motion.p variants={fadeInUp} className="mt-3 max-w-[760px] text-lg leading-7 text-[var(--muted)]">
+          {page.subtitle[language]}
+        </motion.p>
+        <motion.div variants={fadeInUp} className="mt-4 inline-flex items-center rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-1.5">
+          <span className="text-[13px] font-semibold text-[var(--accent)]">{page.description[language]}</span>
+        </motion.div>
+        <motion.div variants={fadeInUp} className="mt-4 flex flex-wrap gap-2">
+          {chips.slice(0, 5).map((chip) => (
+            <Chip key={chip} label={chip} highlight={chip.toLowerCase().includes('mistral')} />
+          ))}
+        </motion.div>
+        <motion.div variants={fadeInUp}>
           <StatRow
-            className="mt-4"
-            items={proof.map((item) => ({
-              value: item.value,
-              label: item.label,
-            }))}
+            className="mt-5"
+            items={proof.map((item) => ({ value: item.value, label: item.label }))}
           />
-          <div className="mt-3.5 flex flex-wrap gap-3">
-            <Button href={page.ctas.primary.href}>{page.ctas.primary[language]}</Button>
-            <Button href={page.ctas.secondary.href} variant="secondary">
-              {page.ctas.secondary[language]}
-            </Button>
-          </div>
-        </div>
-      </section>
+        </motion.div>
+        <motion.div variants={fadeInUp} className="mt-5 flex flex-wrap gap-3">
+          <Button href={page.ctas.primary.href}>{page.ctas.primary[language]}</Button>
+          <Button href={page.ctas.secondary.href} variant="secondary">
+            {page.ctas.secondary[language]}
+          </Button>
+        </motion.div>
+      </motion.section>
 
+      {/* ─── Section 2: Hero Gallery ─── */}
       <HeroSlideshow slides={homeSlides} language={language} />
 
-      <Section id="primitives" title={page.sections[1].title[language]}>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-          {primitiveItems.map((item) => (
-            <PrimitiveCard key={item.title} title={item.title} caption={item.caption} />
+      {/* ─── Section 3: Discover ─── */}
+      <HomeSection id="discover" title={language === 'FR' ? 'Commencez n\u2019importe où.' : 'Start anywhere.'}>
+        <motion.div
+          className="grid gap-5 md:grid-cols-3"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+        >
+          {discover.map((card) => (
+            <motion.div key={card.key} variants={fadeInUp}>
+              <Link
+                href={card.href}
+                className="group block overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_16px_40px_rgba(255,107,44,0.10)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+              >
+                <div className="relative h-[160px] overflow-hidden">
+                  <AbstractCover variant={card.cover} label={card.title} />
+                </div>
+                <div className="p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <h3 className="text-lg font-semibold text-[var(--text)]">{card.title}</h3>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-[var(--accent)] transition group-hover:translate-x-1" />
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{card.description}</p>
+                </div>
+              </Link>
+            </motion.div>
           ))}
-        </div>
-      </Section>
+        </motion.div>
+      </HomeSection>
 
-      <Section id="proof" title={page.sections[2].title[language]}>
-        <ProofStrip badges={badges} language={language} />
-      </Section>
-
-      <Section id="knowledge-studio" title={page.sections[3].title[language]}>
-        <KnowledgeStudioSection language={language} />
-      </Section>
-
-      <Section id="field" title={page.sections[4].title[language]}>
-        <div className="grid grid-flow-col auto-cols-[minmax(280px,1fr)] gap-4 overflow-x-auto pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 md:overflow-visible md:pb-0">
-          {experienceCards[language].map((card) => (
-            <ExperienceCoverCard key={card.route} card={card} language={language} />
+      {/* ─── Section 4: Latest Objects ─── */}
+      <HomeSection id="latest" title={language === 'FR' ? 'Construits récemment' : 'Recently built'}>
+        <motion.div
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+        >
+          {latest.map((item) => (
+            <motion.div key={item.title} variants={fadeInUp}>
+              <Link
+                href={item.href}
+                className="group flex items-start justify-between gap-3 rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] p-4 transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_12px_32px_rgba(255,107,44,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-semibold text-[var(--text)]">{item.title}</h3>
+                    {item.tag && (
+                      <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[10px] font-semibold text-white">
+                        {item.tag}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1.5 flex items-center gap-1 text-xs text-[var(--muted)]">
+                    <Clock className="h-3 w-3" />
+                    {item.time}
+                  </p>
+                </div>
+                <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-[var(--accent)] opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100" />
+              </Link>
+            </motion.div>
           ))}
-        </div>
-      </Section>
+        </motion.div>
+      </HomeSection>
+
+      {/* ─── Section 5: Quickstarts ─── */}
+      <HomeSection id="quickstarts" title={language === 'FR' ? 'Explorer en moins de 10 minutes' : 'Explore in under 10 minutes'}>
+        <motion.div
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+        >
+          {quickstarts.map((card) => (
+            <motion.div key={card.title} variants={fadeInUp}>
+              <Link
+                href={card.href}
+                className="group block rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] p-5 transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_12px_32px_rgba(255,107,44,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+              >
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">{card.category}</p>
+                <h3 className="mt-2 text-sm font-semibold text-[var(--text)] group-hover:text-[var(--accent)]">{card.title}</h3>
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="flex items-center gap-1 text-xs text-[var(--muted)]">
+                    <Clock className="h-3 w-3" />
+                    {card.time}
+                  </span>
+                  <ArrowRight className="h-3.5 w-3.5 text-[var(--accent)] transition group-hover:translate-x-1" />
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
+      </HomeSection>
+
+      {/* ─── Section 6: Field Notes ─── */}
+      <HomeSection id="field-notes" title={language === 'FR' ? 'Projets façonnés par la réalité.' : 'Projects shaped by reality.'}>
+        <motion.div
+          className="grid gap-5 md:grid-cols-3"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+        >
+          {fieldCards.map((card) => (
+            <motion.div key={card.route} variants={fadeInUp}>
+              <ExperienceCoverCard card={card} language={language} />
+            </motion.div>
+          ))}
+        </motion.div>
+      </HomeSection>
+
+      {/* ─── Section 7: Operating System ─── */}
+      <HomeSection id="operating-system" title={language === 'FR' ? 'Tout commence ici.' : 'Everything starts here.'}>
+        <motion.div
+          className="grid gap-6 md:grid-cols-[1.4fr_1fr]"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+          variants={fadeInUp}
+        >
+          <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
+            <img src="/images/asset 2.webp" alt="Knowledge Studio" className="h-full w-full object-cover" />
+          </div>
+          <div>
+            <p className="text-lg leading-7 text-[var(--muted)]">{studioPage.subtitle[language]}</p>
+            <ol className="mt-5 space-y-3">
+              {pipeline.map((step, index) => (
+                <li key={step} className="flex items-start gap-3">
+                  <span className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[var(--accent-soft)] text-[11px] font-semibold text-[var(--accent)]">
+                    {index + 1}
+                  </span>
+                  <span className="text-sm font-medium text-[var(--text)]">{step}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-5 text-[13px] leading-5 text-[var(--muted)]">{studioPage.microcopy[language]}</p>
+          </div>
+        </motion.div>
+      </HomeSection>
+
+      {/* ─── Section 8: Principles ─── */}
+      <HomeSection id="principles" title={language === 'FR' ? 'Principes' : 'Principles'}>
+        <motion.div
+          className="flex flex-wrap gap-3"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+        >
+          {principleList.map((principle) => (
+            <motion.span
+              key={principle}
+              variants={fadeInUp}
+              className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--text)] transition hover:border-[var(--accent-border)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)]"
+            >
+              {principle}
+            </motion.span>
+          ))}
+        </motion.div>
+      </HomeSection>
+
+      {/* ─── Section 9: Testimonials ─── */}
+      <HomeSection id="testimonials" title={language === 'FR' ? 'Témoignages' : 'Testimonials'}>
+        <motion.div
+          className="grid gap-5 md:grid-cols-3"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-50px' }}
+        >
+          {testimonialList.map((testimonial, index) => (
+            <motion.div key={index} variants={fadeInUp}>
+              <div className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] p-6">
+                <Quote className="h-5 w-5 text-[var(--accent)] opacity-50" />
+                <p className="mt-3 text-sm leading-7 text-[var(--text)]">&ldquo;{testimonial.quote}&rdquo;</p>
+                <p className="mt-4 text-xs font-semibold text-[var(--muted)]">{testimonial.author}</p>
+                <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-[var(--accent)]">{testimonial.category}</p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </HomeSection>
     </>
+  );
+}
+
+function HomeSection({ id, title, children }) {
+  return (
+    <section id={id} className="scroll-mt-24 border-t border-[var(--border)] py-20 lg:py-28">
+      <motion.h2
+        className="mb-8 text-2xl font-semibold text-[var(--text)] sm:text-[2.25rem]"
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {title}
+      </motion.h2>
+      {children}
+    </section>
+  );
+}
+
+/* ─── Slideshow ─── */
+
+function HeroSlideshow({ slides, language }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [touchStart, setTouchStart] = useState(null);
+
+  useEffect(() => {
+    if (paused || slides.length < 2) return undefined;
+    const timer = window.setInterval(() => {
+      setActiveIndex((value) => (value + 1) % slides.length);
+    }, 4200);
+    return () => window.clearInterval(timer);
+  }, [paused, slides.length]);
+
+  const goTo = (nextIndex) => {
+    setActiveIndex((nextIndex + slides.length) % slides.length);
+  };
+
+  const onKeyDown = (event) => {
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      goTo(activeIndex + 1);
+    }
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      goTo(activeIndex - 1);
+    }
+  };
+
+  return (
+    <section className="mb-8">
+      <div
+        className="group relative overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_20px_60px_rgba(23,19,15,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]"
+        tabIndex={0}
+        onKeyDown={onKeyDown}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
+        onTouchStart={(event) => setTouchStart(event.touches[0]?.clientX ?? null)}
+        onTouchEnd={(event) => {
+          if (touchStart === null) return;
+          const touchEnd = event.changedTouches[0]?.clientX ?? touchStart;
+          const delta = touchEnd - touchStart;
+          if (delta > 40) goTo(activeIndex - 1);
+          if (delta < -40) goTo(activeIndex + 1);
+          setTouchStart(null);
+        }}
+      >
+        <div className="relative h-[300px] overflow-hidden sm:h-[480px] xl:h-[640px]">
+          {slides.map((slide, index) => {
+            const isActive = index === activeIndex;
+            return (
+              <div
+                key={slide.id}
+                className={cn(
+                  'absolute inset-0 transition-all duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
+                  isActive
+                    ? 'translate-x-0 opacity-100'
+                    : cn('pointer-events-none opacity-0', index < activeIndex ? '-translate-x-3' : 'translate-x-3')
+                )}
+                aria-hidden={!isActive}
+              >
+                <img src={slide.src} alt={slide.alt} className="h-full w-full object-cover object-center" />
+                <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/55 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-5 py-5 sm:px-6 sm:py-6">
+                  <p className="max-w-[70%] text-sm leading-6 text-white/92 sm:text-base lg:text-lg">
+                    {slide.caption[language]}
+                  </p>
+                  <p className="text-xs font-semibold tracking-[0.18em] text-white/80">
+                    {String(index + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.03),rgba(255,255,255,0)_35%,rgba(255,255,255,0)_65%,rgba(255,255,255,0.03))]" />
+          <button
+            type="button"
+            aria-label={language === 'FR' ? 'Image pr\u00e9c\u00e9dente' : 'Previous slide'}
+            onClick={() => goTo(activeIndex - 1)}
+            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/18 bg-black/25 p-2 text-white opacity-0 backdrop-blur transition group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label={language === 'FR' ? 'Image suivante' : 'Next slide'}
+            onClick={() => goTo(activeIndex + 1)}
+            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/18 bg-black/25 p-2 text-white opacity-0 backdrop-blur transition group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center justify-between gap-4 px-1">
+        <p className="min-w-0 truncate text-sm text-[var(--muted)]">{slides[activeIndex].caption[language]}</p>
+        <div className="flex items-center gap-2">
+          {slides.map((slide, index) => (
+            <button
+              key={slide.id}
+              type="button"
+              aria-label={`Slide ${index + 1}`}
+              aria-pressed={index === activeIndex}
+              onClick={() => goTo(index)}
+              className={cn(
+                'h-2.5 rounded-full transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
+                index === activeIndex ? 'w-8 bg-[var(--accent)]' : 'w-2.5 bg-[var(--border-strong)] hover:bg-[var(--accent-border)]'
+              )}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Shared Components ─── */
+
+function StatRow({ items, className = '' }) {
+  return (
+    <div className={cn('mt-6 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]', className)}>
+      <div className="grid divide-y divide-[var(--border)] sm:grid-cols-4 sm:divide-x sm:divide-y-0">
+        {items.map((item) => (
+          <div key={`${item.value}-${item.label}`} className="px-4 py-3 sm:px-5 sm:py-4">
+            <p className="text-[1.85rem] font-semibold leading-none tracking-[-0.04em] text-[var(--text)]">{item.value}</p>
+            <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--muted)]">{item.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ExperienceCoverCard({ card, language }) {
+  const cover = pageCoverMap[card.route] || {};
+  const image = cover.image || experienceCoverMap[card.route];
+  return (
+    <Link
+      href={card.route}
+      className="group relative isolate block overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_18px_50px_rgba(23,19,15,0.12)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+    >
+      <div className="relative h-[220px] overflow-hidden">
+        {image ? <img src={image} alt={card.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" /> : <AbstractCover variant="public-sector" label={card.title} />}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/72 via-black/15 to-transparent" />
+        <div className="absolute left-4 top-4 rounded-full border border-white/15 bg-black/25 px-2.5 py-1 text-[10px] font-semibold tracking-[0.15em] text-white/90 backdrop-blur">
+          {(card.label || card.title).toUpperCase()}
+        </div>
+        <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3 text-white">
+          <div className="max-w-[82%]">
+            <h3 className="text-lg font-semibold leading-tight">{card.headline || card.description}</h3>
+            <p className="mt-1 text-[13px] leading-6 text-white/78">{card.role}</p>
+            {card.location && (
+              <p className="mt-1 text-xs text-white/60">{card.location} \u00b7 {card.year}</p>
+            )}
+          </div>
+          <span className="rounded-full border border-white/15 bg-white/10 p-2.5 text-white transition group-hover:translate-x-1 group-hover:-translate-y-0.5">
+            <ArrowRight className="h-4 w-4" />
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function AbstractCover({ variant, label, compact = false }) {
+  const gradientSrc = gradientCoverMap[variant] || gradientCoverMap.editorial;
+  return (
+    <div className="absolute inset-0 overflow-hidden bg-[var(--surface)]">
+      <img src={gradientSrc} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover object-center" />
+      {compact ? null : <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.08))]" />}
+      {compact ? null : (
+        <div className="pointer-events-none absolute inset-0 opacity-35">
+          <div className="absolute inset-x-0 top-0 h-px bg-white/40" />
+          <div className="absolute left-4 top-4 h-20 w-20 rounded-full border border-white/20" />
+          <div className="absolute right-6 top-10 h-14 w-14 rounded-[24px] border border-white/20" />
+          <div className="absolute bottom-4 left-4 right-4 h-16 rounded-2xl border border-white/18" />
+        </div>
+      )}
+      {compact ? null : (
+        <div className="absolute bottom-4 left-4 rounded-full border border-white/18 bg-black/10 px-2.5 py-1 text-[10px] font-semibold tracking-[0.14em] text-white/85 backdrop-blur">
+          {label}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -591,7 +1025,7 @@ function PrimitiveCard({ title, caption }) {
   return (
     <Link
       href="/primitives"
-      className="group overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-1 hover:border-[var(--accent-border)] hover:shadow-[0_14px_34px_rgba(255,107,53,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      className="group overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_14px_34px_rgba(255,107,53,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
     >
       <div className="h-16 bg-gradient-to-br from-[var(--accent-soft)] to-[var(--surface-subtle)]" />
       <div className="p-4">
@@ -649,7 +1083,7 @@ function KnowledgeStudioSection({ language }) {
   const pipeline = studioPage.pipeline[language];
   return (
     <div className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
-      <div className="overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
+      <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
         <img src="/images/asset 2.webp" alt="Knowledge Studio" className="h-full w-full object-cover" />
       </div>
       <div>
@@ -670,229 +1104,7 @@ function KnowledgeStudioSection({ language }) {
   );
 }
 
-function HeroSlideshow({ slides, language }) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [touchStart, setTouchStart] = useState(null);
-
-  useEffect(() => {
-    if (paused || slides.length < 2) return undefined;
-    const timer = window.setInterval(() => {
-      setActiveIndex((value) => (value + 1) % slides.length);
-    }, 4200);
-    return () => window.clearInterval(timer);
-  }, [paused, slides.length]);
-
-  const goTo = (nextIndex) => {
-    setActiveIndex((nextIndex + slides.length) % slides.length);
-  };
-
-  const onKeyDown = (event) => {
-    if (event.key === 'ArrowRight') {
-      event.preventDefault();
-      goTo(activeIndex + 1);
-    }
-    if (event.key === 'ArrowLeft') {
-      event.preventDefault();
-      goTo(activeIndex - 1);
-    }
-  };
-
-  return (
-    <section className="mb-8">
-      <div
-        className="group relative overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] shadow-[0_20px_60px_rgba(23,19,15,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]"
-        tabIndex={0}
-        onKeyDown={onKeyDown}
-        onMouseEnter={() => setPaused(true)}
-        onMouseLeave={() => setPaused(false)}
-        onTouchStart={(event) => setTouchStart(event.touches[0]?.clientX ?? null)}
-        onTouchEnd={(event) => {
-          if (touchStart === null) return;
-          const touchEnd = event.changedTouches[0]?.clientX ?? touchStart;
-          const delta = touchEnd - touchStart;
-          if (delta > 40) goTo(activeIndex - 1);
-          if (delta < -40) goTo(activeIndex + 1);
-          setTouchStart(null);
-        }}
-      >
-        <div className="relative h-[240px] overflow-hidden sm:h-[360px] xl:h-[420px]">
-          {slides.map((slide, index) => {
-            const isActive = index === activeIndex;
-            const previous = (activeIndex - 1 + slides.length) % slides.length;
-            const direction = index === previous ? -1 : 1;
-            return (
-              <div
-                key={slide.id}
-                className={cn(
-                  'absolute inset-0 transition-all duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none',
-                  isActive
-                    ? 'translate-x-0 opacity-100'
-                    : cn('pointer-events-none opacity-0', index < activeIndex ? '-translate-x-3' : 'translate-x-3')
-                )}
-                aria-hidden={!isActive}
-              >
-                <img src={slide.src} alt={slide.alt} className="h-full w-full object-cover object-center" />
-                <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/55 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 px-4 py-4 sm:px-5 sm:py-5">
-                  <p className="max-w-[70%] text-sm leading-6 text-white/92 sm:text-base">
-                    {slide.caption[language]}
-                  </p>
-                  <p className="text-xs font-semibold tracking-[0.18em] text-white/80">
-                    {String(index + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.03),rgba(255,255,255,0)_35%,rgba(255,255,255,0)_65%,rgba(255,255,255,0.03))]" />
-          <button
-            type="button"
-            aria-label={language === 'FR' ? 'Image précédente' : 'Previous slide'}
-            onClick={() => goTo(activeIndex - 1)}
-            className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/18 bg-black/25 p-2 text-white opacity-0 backdrop-blur transition group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-          >
-            <ChevronLeftIcon />
-          </button>
-          <button
-            type="button"
-            aria-label={language === 'FR' ? 'Image suivante' : 'Next slide'}
-            onClick={() => goTo(activeIndex + 1)}
-            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full border border-white/18 bg-black/25 p-2 text-white opacity-0 backdrop-blur transition group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-          >
-            <ChevronRightIcon />
-          </button>
-        </div>
-      </div>
-      <div className="mt-3 flex items-center justify-between gap-4 px-1">
-        <p className="min-w-0 truncate text-sm text-[var(--muted)]">{slides[activeIndex].caption[language]}</p>
-        <div className="flex items-center gap-2">
-          {slides.map((slide, index) => (
-            <button
-              key={slide.id}
-              type="button"
-              aria-label={`Slide ${index + 1}`}
-              aria-pressed={index === activeIndex}
-              onClick={() => goTo(index)}
-              className={cn(
-                'h-2.5 rounded-full transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
-                index === activeIndex ? 'w-8 bg-[var(--accent)]' : 'w-2.5 bg-[var(--border-strong)] hover:bg-[var(--accent-border)]'
-              )}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function StatRow({ items, className = '' }) {
-  return (
-    <div className={cn('mt-6 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]', className)}>
-      <div className="grid divide-y divide-[var(--border)] sm:grid-cols-4 sm:divide-x sm:divide-y-0">
-        {items.map((item) => (
-          <div key={`${item.value}-${item.label}`} className="px-4 py-3 sm:px-5 sm:py-4">
-            <p className="text-[1.85rem] font-semibold leading-none tracking-[-0.04em] text-[var(--text)]">{item.value}</p>
-            <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--muted)]">{item.label}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function CompactMetadata({ rows, note, language }) {
-  const visibleRows = rows.slice(0, 4);
-  return (
-    <div className="space-y-4">
-      <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
-        <div className="divide-y divide-[var(--border)]">
-          {visibleRows.map(([label, value]) => (
-            <div key={`${label}-${value}`} className="grid grid-cols-[110px_1fr] gap-3 px-4 py-3 text-sm sm:grid-cols-[140px_1fr]">
-              <dt className="text-[var(--muted)]">{label}</dt>
-              <dd className="font-medium text-[var(--text)]">{value === 'Mistral Vibe' ? <MistralMention><MistralLogo />{value}</MistralMention> : <TextWithMistralLogo text={value} />}</dd>
-            </div>
-          ))}
-        </div>
-      </div>
-      <details className="group rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-3">
-        <summary className="cursor-pointer list-none text-sm font-semibold text-[var(--text)]">{language === 'FR' ? 'Pourquoi ce format ?' : 'Why this format?'}</summary>
-        <p className="mt-3 max-w-[720px] text-sm leading-6 text-[var(--muted)]">{note}</p>
-      </details>
-    </div>
-  );
-}
-
-function CoverCard({ href, title, description, cover, label }) {
-  return (
-    <Link
-      href={href}
-      className="group snap-start overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-1 hover:border-[var(--accent-border)] hover:shadow-[0_16px_40px_rgba(255,107,53,0.10)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
-    >
-      <div className="relative h-[140px] overflow-hidden">
-        <AbstractCover variant={cover} label={label} />
-      </div>
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-4">
-          <h3 className="text-sm font-semibold text-[var(--text)]">{title}</h3>
-          <span className="text-[var(--accent)] transition group-hover:translate-x-1">→</span>
-        </div>
-        <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{description}</p>
-      </div>
-    </Link>
-  );
-}
-
-function ExperienceCoverCard({ card, language }) {
-  const cover = pageCoverMap[card.route] || {};
-  const image = cover.image || experienceCoverMap[card.route];
-  return (
-    <Link
-      href={card.route}
-      className="group relative isolate overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-1 hover:border-[var(--accent-border)] hover:shadow-[0_18px_50px_rgba(23,19,15,0.12)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
-    >
-      <div className="relative h-[220px] overflow-hidden">
-        {image ? <img src={image} alt={card.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" /> : <AbstractCover variant="public-sector" label={card.title} />}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/72 via-black/15 to-transparent" />
-        <div className="absolute left-4 top-4 rounded-full border border-white/15 bg-black/25 px-2.5 py-1 text-[10px] font-semibold tracking-[0.15em] text-white/90 backdrop-blur">
-          {(card.label || card.title).toUpperCase()}
-        </div>
-        <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3 text-white">
-          <div className="max-w-[82%]">
-            <h3 className="text-lg font-semibold leading-tight">{card.headline || card.description}</h3>
-            <p className="mt-2 text-sm leading-6 text-white/78">{card.role}</p>
-          </div>
-          <span className="rounded-full border border-white/15 bg-white/10 p-2.5 text-white transition group-hover:translate-x-1 group-hover:-translate-y-0.5">
-            →
-          </span>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-function AbstractCover({ variant, label, compact = false }) {
-  const gradientSrc = gradientCoverMap[variant] || gradientCoverMap.editorial;
-  return (
-    <div className="absolute inset-0 overflow-hidden bg-[var(--surface)]">
-      <img src={gradientSrc} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover object-center" />
-      {compact ? null : <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.08))]" />}
-      {compact ? null : (
-        <div className="pointer-events-none absolute inset-0 opacity-35">
-          <div className="absolute inset-x-0 top-0 h-px bg-white/40" />
-          <div className="absolute left-4 top-4 h-20 w-20 rounded-full border border-white/20" />
-          <div className="absolute right-6 top-10 h-14 w-14 rounded-[24px] border border-white/20" />
-          <div className="absolute bottom-4 left-4 right-4 h-16 rounded-2xl border border-white/18" />
-        </div>
-      )}
-      {compact ? null : (
-        <div className="absolute bottom-4 left-4 rounded-full border border-white/18 bg-black/10 px-2.5 py-1 text-[10px] font-semibold tracking-[0.14em] text-white/85 backdrop-blur">
-          {label}
-        </div>
-      )}
-    </div>
-  );
-}
+/* ─── Inner Pages ─── */
 
 function GettingStartedPage({ page }) {
   const { language } = useLanguage();
@@ -1069,13 +1281,13 @@ function DoDontPage({ page }) {
 function PatternsPage({ page }) {
   const { language } = useLanguage();
   const patterns = [
-    [page.sections[0].title[language], language === 'FR' ? 'Problème → rôle → impact → apprentissage.' : 'Problem → role → impact → learning.'],
-    [page.sections[1].title[language], language === 'FR' ? 'Une expérience lisible, avec métadonnées, preuves et liens.' : 'A readable experience with metadata, proof and links.'],
-    [page.sections[2].title[language], language === 'FR' ? 'Un bloc réutilisable pour nom, titre et capacité à lire vite.' : 'A reusable block for name, title and fast scanning.'],
-    [page.sections[3].title[language], language === 'FR' ? 'Petits groupes de faits vérifiables, jamais de bruit décoratif.' : 'Small groups of verifiable facts, never decorative noise.'],
+    [page.sections[0].title[language], language === 'FR' ? 'Probl\u00e8me \u2192 r\u00f4le \u2192 impact \u2192 apprentissage.' : 'Problem \u2192 role \u2192 impact \u2192 learning.'],
+    [page.sections[1].title[language], language === 'FR' ? 'Une exp\u00e9rience lisible, avec m\u00e9tadonn\u00e9es, preuves et liens.' : 'A readable experience with metadata, proof and links.'],
+    [page.sections[2].title[language], language === 'FR' ? 'Un bloc r\u00e9utilisable pour nom, titre et capacit\u00e9 \u00e0 lire vite.' : 'A reusable block for name, title and fast scanning.'],
+    [page.sections[3].title[language], language === 'FR' ? 'Petits groupes de faits v\u00e9rifiables, jamais de bruit d\u00e9coratif.' : 'Small groups of verifiable facts, never decorative noise.'],
     [page.sections[4].title[language], language === 'FR' ? "Un point d'attention, un label, puis une explication utile." : 'One point of attention, one label, then a useful explanation.'],
     [page.sections[5].title[language], language === 'FR' ? 'Toujours garder une direction de lecture claire.' : 'Always keep a clear reading direction.'],
-    [page.sections[6].title[language], language === 'FR' ? 'Les liens donnent le contexte, le système devient navigable.' : 'Links provide context and make the system navigable.'],
+    [page.sections[6].title[language], language === 'FR' ? 'Les liens donnent le contexte, le syst\u00e8me devient navigable.' : 'Links provide context and make the system navigable.'],
   ];
 
   return (
@@ -1087,7 +1299,7 @@ function PatternsPage({ page }) {
             <p className="text-sm leading-7 text-[var(--muted)]">{patterns[0][1]}</p>
           </DocSurface>
           <DocSurface>
-            <p className="text-sm leading-7 text-[var(--muted)]">{language === 'FR' ? 'Section structurée par contexte, problème, rôle, impact et leçon.' : 'A section structured by context, problem, role, impact and lesson.'}</p>
+            <p className="text-sm leading-7 text-[var(--muted)]">{language === 'FR' ? 'Section structur\u00e9e par contexte, probl\u00e8me, r\u00f4le, impact et le\u00e7on.' : 'A section structured by context, problem, role, impact and lesson.'}</p>
           </DocSurface>
         </div>
       </Section>
@@ -1150,7 +1362,7 @@ function KnowledgeSystemPage({ page }) {
       </Section>
       <Section id="screenshot" title={page.sections[2].title[language]}>
         <div className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
-          <div className="overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
+          <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
             <img src="/images/asset 2.webp" alt="Knowledge Studio workspace" className="h-full w-full object-cover" />
           </div>
           <div>
@@ -1189,7 +1401,7 @@ function ExperienceIndexPage({ page }) {
     <>
       <PageHeader page={page} />
       <Section id="experience-cards" title={page.sections[0].title[language]}>
-        <div className="grid grid-flow-col auto-cols-[minmax(280px,1fr)] gap-4 overflow-x-auto pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 md:overflow-visible md:pb-0">
+        <div className="grid gap-5 md:grid-cols-3">
           {experienceCards[language].map((card) => (
             <ExperienceCoverCard key={card.route} card={card} language={language} />
           ))}
@@ -1230,6 +1442,33 @@ function ExperienceDetailPage({ pageKey, page }) {
   );
 }
 
+function ExperimentsPage({ page }) {
+  const { language } = useLanguage();
+  const items = page.items[language];
+  return (
+    <>
+      <PageHeader page={page} />
+      <Section id="experiments-list" title={page.sections[0].title[language]}>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {items.map((item) => (
+            <DocSurface key={item.title}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--text)]">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{item.description}</p>
+                </div>
+                <span className="rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-[10px] font-semibold text-[var(--accent)]">
+                  {language === 'FR' ? 'En cours' : 'WIP'}
+                </span>
+              </div>
+            </DocSurface>
+          ))}
+        </div>
+      </Section>
+    </>
+  );
+}
+
 function ResumePage({ page }) {
   const { language } = useLanguage();
   return (
@@ -1239,8 +1478,8 @@ function ResumePage({ page }) {
         <MetadataTable
           rows={[
             [language === 'FR' ? 'Nom' : 'Name', 'Tewfiq Ferahi'],
-            [language === 'FR' ? 'Rôle cible' : 'Target role', language === 'FR' ? 'Designer Produit — Documentation' : 'Product Designer — Documentation'],
-            [language === 'FR' ? 'Domaines' : 'Domains', language === 'FR' ? 'Documentation, IA produit, systèmes de design, transmission' : 'Documentation, AI product, design systems, teaching'],
+            [language === 'FR' ? 'R\u00f4le cible' : 'Target role', language === 'FR' ? 'Designer Produit — Documentation' : 'Product Designer — Documentation'],
+            [language === 'FR' ? 'Domaines' : 'Domains', language === 'FR' ? 'Documentation, IA produit, syst\u00e8mes de design, transmission' : 'Documentation, AI product, design systems, teaching'],
           ]}
         />
       </Section>
@@ -1265,6 +1504,8 @@ function ContactPage({ page }) {
   );
 }
 
+/* ─── Shared UI Primitives ─── */
+
 function Section({ id, title, children }) {
   return (
     <section id={id} className="scroll-mt-24 border-t border-[var(--border)] py-12 lg:py-16">
@@ -1276,7 +1517,7 @@ function Section({ id, title, children }) {
 
 function Button({ href, children, variant = 'primary' }) {
   const className = cn(
-    'inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
+    'inline-flex items-center justify-center rounded-md px-4 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
     variant === 'primary'
       ? 'bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]'
       : 'border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:border-[var(--accent-border)] hover:bg-[var(--accent-soft)]'
@@ -1314,8 +1555,8 @@ function MistralMention({ children, className = '' }) {
   );
 }
 
-function MistralLogo({ className = 'h-3.5 w-3.5' }) {
-  return <img src="/mistral-color.svg" alt="" aria-hidden="true" className={cn('shrink-0', className)} />;
+function MistralLogo({ className: cls = 'h-3.5 w-3.5' }) {
+  return <img src="/mistral-color.svg" alt="" aria-hidden="true" className={cn('shrink-0', cls)} />;
 }
 
 function TextWithMistralLogo({ text }) {
@@ -1346,15 +1587,6 @@ function MetadataTable({ rows, stacked = false }) {
           </div>
         ))}
       </dl>
-    </div>
-  );
-}
-
-function Callout({ children, variant = 'note' }) {
-  return (
-    <div className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-soft)] p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">{variant}</p>
-      <p className="mt-2 text-sm leading-6 text-[var(--text)]">{children}</p>
     </div>
   );
 }
@@ -1426,7 +1658,7 @@ function ClickableDocCard({ href, title, description, cover }) {
   return (
     <Link
       href={href}
-      className="group block overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-1 hover:border-[var(--accent-border)] hover:shadow-[0_14px_34px_rgba(255,107,53,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      className="group block overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_14px_34px_rgba(255,107,53,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
       aria-label={title}
     >
       <div className="relative h-24 overflow-hidden">
@@ -1439,30 +1671,10 @@ function ClickableDocCard({ href, title, description, cover }) {
       <div className="p-4">
         <div className="flex items-start justify-between gap-4">
           <h3 className="text-sm font-semibold text-[var(--text)]">{title}</h3>
-          <span className="text-[var(--accent)] transition group-hover:translate-x-1">→</span>
+          <ArrowRight className="h-4 w-4 shrink-0 text-[var(--accent)] transition group-hover:translate-x-1" />
         </div>
         <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{description}</p>
       </div>
-    </Link>
-  );
-}
-
-function ExperienceCard({ card }) {
-  return (
-    <Link
-      href={card.route}
-      className="group block rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5 transition hover:border-[var(--accent-border)] hover:bg-[var(--accent-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
-    >
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-sm font-semibold text-[var(--text)]">{card.title}</h3>
-          <p className="mt-1 text-xs text-[var(--muted)]">{card.role}</p>
-        </div>
-        <span className="text-[var(--accent)] transition group-hover:translate-x-0.5">→</span>
-      </div>
-      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{card.updated}</p>
-      <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{card.description}</p>
-      <p className="mt-4 text-xs text-[var(--muted)]">{card.route}</p>
     </Link>
   );
 }
@@ -1472,7 +1684,7 @@ function PrincipleCard({ title, definition, why }) {
   return (
     <DocSurface>
       <h3 className="text-base font-semibold text-[var(--text)]">{title}</h3>
-      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{language === 'FR' ? 'Définition' : 'Definition'}</p>
+      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{language === 'FR' ? 'D\u00e9finition' : 'Definition'}</p>
       <p className="mt-1 text-sm leading-6 text-[var(--muted)]">{definition}</p>
       <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{language === 'FR' ? 'Pourquoi c\u2019est important' : 'Why it matters'}</p>
       <p className="mt-1 text-sm leading-6 text-[var(--muted)]">{why}</p>
@@ -1482,32 +1694,15 @@ function PrincipleCard({ title, definition, why }) {
 
 function ComparisonCard({ label, text, negative = false }) {
   return (
-    <div className={cn('rounded-[14px] border bg-[var(--surface)] p-5', negative ? 'border-[var(--accent-border)]' : 'border-[var(--border)]')}>
+    <div className={cn('rounded-[var(--radius-card)] border bg-[var(--surface)] p-5', negative ? 'border-[var(--accent-border)]' : 'border-[var(--border)]')}>
       <div className="flex items-center gap-2">
         <span className={cn('grid h-8 w-8 place-items-center rounded-full', negative ? 'bg-[var(--accent-soft)] text-[var(--accent)]' : 'bg-[var(--surface-subtle)] text-[var(--muted)]')}>
-          {negative ? <XIcon /> : <CheckIcon />}
+          {negative ? <X className="h-4 w-4" /> : <Check className="h-4 w-4" />}
         </span>
         <p className={cn('text-[11px] font-semibold uppercase tracking-[0.14em]', negative ? 'text-[var(--accent)]' : 'text-[var(--muted)]')}>{label}</p>
       </div>
       <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{text}</p>
     </div>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 6 9 17l-5-5" />
-    </svg>
-  );
-}
-
-function XIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m18 6-12 12" />
-      <path d="m6 6 12 12" />
-    </svg>
   );
 }
 
@@ -1553,7 +1748,7 @@ function EvidenceGrid({ images }) {
           </span>
           <span className="flex items-center justify-between gap-3 border-t border-[var(--border)] px-4 py-3 text-xs font-medium text-[var(--muted)]">
             <span>{image.caption}</span>
-            <span className="text-[var(--accent)]">↗</span>
+            <ArrowUpRight className="h-3.5 w-3.5 text-[var(--accent)]" />
           </span>
         </a>
       ))}
@@ -1615,6 +1810,8 @@ function PrevNextLink({ label, route, language, alignRight }) {
     </Link>
   );
 }
+
+/* ─── Search Modal ─── */
 
 function SearchModal({ open, onClose, language }) {
   const { t } = useLanguage();
@@ -1690,7 +1887,7 @@ function SearchModal({ open, onClose, language }) {
     <div className="fixed inset-0 z-[80] bg-black/35 p-4" role="dialog" aria-modal="true" aria-label={t.search} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="mx-auto mt-[12vh] max-w-xl overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xl">
         <div className="flex items-center gap-3 border-b border-[var(--border)] px-4 py-3">
-          <SearchIcon />
+          <Search className="h-4 w-4 text-[var(--muted)]" />
           <input
             autoFocus
             value={query}
@@ -1724,7 +1921,7 @@ function SearchModal({ open, onClose, language }) {
                   <span className={cn('block text-sm font-medium', i === selected ? 'text-[var(--accent)]' : 'text-[var(--text)]')}>{item.title}</span>
                   {item.excerpt ? <span className="mt-0.5 block truncate text-xs text-[var(--muted)]">{item.excerpt}</span> : null}
                 </span>
-                {i === selected && <span className="text-xs text-[var(--accent)]">↵</span>}
+                {i === selected && <span className="text-xs text-[var(--accent)]">\u21b5</span>}
               </button>
             ))
           ) : query ? (
@@ -1736,6 +1933,8 @@ function SearchModal({ open, onClose, language }) {
   );
 }
 
+/* ─── Footer ─── */
+
 function Footer() {
   const { language, t } = useLanguage();
   return (
@@ -1744,7 +1943,7 @@ function Footer() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold text-[var(--text)]">Tewfiq Ferahi</p>
-            <p className="mt-1 text-sm text-[var(--muted)]">Knowledge Engineering</p>
+            <p className="mt-1 text-sm text-[var(--muted)]">Knowledge Studio</p>
             <p className="mt-1 text-sm text-[var(--muted)]">{t.footerRole}</p>
             <p className="mt-4 inline-flex flex-wrap items-center gap-2 text-xs text-[var(--muted)]">
               <MistralMention>
@@ -1763,6 +1962,9 @@ function Footer() {
             <a className="text-[var(--muted)] hover:text-[var(--accent)]" href="#">
               GitHub
             </a>
+            <a className="text-[var(--muted)] hover:text-[var(--accent)]" href="/CVMISTRALLPD0726.pdf" target="_blank" rel="noreferrer" download>
+              CV
+            </a>
             <a className="text-[var(--muted)] hover:text-[var(--accent)]" href="mailto:hello@tewfiq.com">
               {language === 'FR' ? 'E-mail' : 'Email'}
             </a>
@@ -1777,109 +1979,5 @@ function Footer() {
         <span className="bg-[#c7361d]" />
       </div>
     </footer>
-  );
-}
-
-function MenuIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <path d="M4 7h16" />
-      <path d="M4 12h16" />
-      <path d="M4 17h16" />
-    </svg>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="6" />
-      <path d="m16 16 4 4" />
-    </svg>
-  );
-}
-
-function ChevronLeftIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m15 18-6-6 6-6" />
-    </svg>
-  );
-}
-
-function ChevronRightIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m9 6 6 6-6 6" />
-    </svg>
-  );
-}
-
-function PanelsIcon({ open }) {
-  return open ? <PanelsOpenIcon /> : <PanelsClosedIcon />;
-}
-
-function PanelsOpenIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="5" width="7" height="14" rx="1.5" />
-      <rect x="14" y="5" width="7" height="14" rx="1.5" />
-      <path d="M11 12h2" />
-    </svg>
-  );
-}
-
-function PanelsClosedIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="6" y="5" width="12" height="14" rx="1.5" />
-      <path d="M9 12h6" />
-    </svg>
-  );
-}
-
-function SunIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-    </svg>
-  );
-}
-
-function MoonIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-    </svg>
-  );
-}
-
-function MonitorIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="3" width="20" height="14" rx="2" />
-      <path d="M8 21h8M12 17v4" />
-    </svg>
-  );
-}
-
-function SidebarCollapseIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <path d="M9 3v18" />
-      <path d="m16 15-3-3 3-3" />
-    </svg>
-  );
-}
-
-function SidebarExpandIcon() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <path d="M9 3v18" />
-      <path d="m14 9 3 3-3 3" />
-    </svg>
   );
 }
