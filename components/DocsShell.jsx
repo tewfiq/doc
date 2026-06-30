@@ -1135,7 +1135,7 @@ function KnowledgeSystemPage({ page }) {
         <WorkflowDiagram steps={pipeline} />
       </Section>
       <Section id="knowledge-cards" title={page.sections[1].title[language]}>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
           {knowledgeCards[language].map((title) => (
             <DocSurface key={title}>
               <h3 className="text-sm font-semibold text-[var(--text)]">{title}</h3>
