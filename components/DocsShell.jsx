@@ -457,13 +457,13 @@ function PageHeader({ page, children }) {
   return (
     <header className="mb-8 border-b border-[var(--border)] pb-10">
       <div className="mb-6 overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
-        <div className="relative h-[180px] sm:h-[220px]">
+        <div className="relative isolate h-[180px] sm:h-[220px]">
           {cover.image ? (
             <img src={cover.image} alt="" aria-hidden="true" className="h-full w-full object-cover object-center" />
           ) : (
             <AbstractCover variant={cover.variant || 'editorial'} label={page.crumb[language]} />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/28 via-transparent to-transparent" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/28 via-transparent to-transparent" />
         </div>
       </div>
       <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--accent)]">{page.crumb[language]}</p>
@@ -813,9 +813,9 @@ function AbstractCover({ variant, label, compact = false }) {
   return (
     <div className="absolute inset-0 overflow-hidden bg-[var(--surface)]">
       <img src={gradientSrc} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover object-center" />
-      {compact ? null : <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.08))]" />}
+      {compact ? null : <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.08))]" />}
       {compact ? null : (
-        <div className="absolute inset-0 opacity-35">
+        <div className="pointer-events-none absolute inset-0 opacity-35">
           <div className="absolute inset-x-0 top-0 h-px bg-white/40" />
           <div className="absolute left-4 top-4 h-20 w-20 rounded-full border border-white/20" />
           <div className="absolute right-6 top-10 h-14 w-14 rounded-[24px] border border-white/20" />
@@ -1338,7 +1338,7 @@ function ClickableDocCard({ href, title, description, cover = 'editorial' }) {
       className="group block overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-1 hover:border-[var(--accent-border)] hover:shadow-[0_14px_34px_rgba(255,107,53,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
       aria-label={title}
     >
-      <div className="h-24 overflow-hidden">
+      <div className="relative h-24 overflow-hidden">
         <AbstractCover variant={cover} label={title} />
       </div>
       <div className="p-4">
