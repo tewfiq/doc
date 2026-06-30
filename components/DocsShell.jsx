@@ -113,7 +113,7 @@ const pageCoverMap = {
   '/experience': { image: '/covers/cover-06.webp' },
   '/resume': { image: '/covers/cover-04.webp' },
   '/contact': { image: '/covers/cover-02.webp' },
-  '/experience/dinum': { image: experienceCoverMap['/experience/dinum'] },
+  '/experience/dinum': { image: experienceCoverMap['/experience/dinum'], position: 'center calc(50% - 250px)' },
   '/experience/bnp-paribas': { image: experienceCoverMap['/experience/bnp-paribas'] },
   '/experience/education': { image: experienceCoverMap['/experience/education'] },
 };
@@ -492,7 +492,7 @@ function PageHeader({ page, children }) {
       <div className="mb-6 overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
         <div className="relative isolate h-[180px] sm:h-[220px]">
           {cover.image ? (
-            <img src={cover.image} alt="" aria-hidden="true" className="h-full w-full object-cover object-center" />
+            <img src={cover.image} alt="" aria-hidden="true" className="h-full w-full object-cover" style={cover.position ? { objectPosition: cover.position } : undefined} />
           ) : (
             <AbstractCover variant={cover.variant || 'editorial'} label={page.crumb[language]} />
           )}
@@ -853,14 +853,15 @@ function CoverCard({ href, title, description, cover, label }) {
 }
 
 function ExperienceCoverCard({ card, language }) {
-  const image = experienceCoverMap[card.route];
+  const cover = pageCoverMap[card.route] || {};
+  const image = cover.image || experienceCoverMap[card.route];
   return (
     <Link
       href={card.route}
       className="group relative isolate overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-1 hover:border-[var(--accent-border)] hover:shadow-[0_18px_50px_rgba(23,19,15,0.12)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
     >
       <div className="relative h-[220px] overflow-hidden">
-        {image ? <img src={image} alt={card.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" /> : <AbstractCover variant="public-sector" label={card.title} />}
+        {image ? <img src={image} alt={card.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" style={cover.position ? { objectPosition: cover.position } : undefined} /> : <AbstractCover variant="public-sector" label={card.title} />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/72 via-black/15 to-transparent" />
         <div className="absolute left-4 top-4 rounded-full border border-white/15 bg-black/25 px-2.5 py-1 text-[10px] font-semibold tracking-[0.15em] text-white/90 backdrop-blur">
           {(card.label || card.title).toUpperCase()}
