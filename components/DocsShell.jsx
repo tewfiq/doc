@@ -15,6 +15,7 @@ import {
   navGroups,
   pages,
   principles,
+  proofBadges,
   routes,
   shared,
   trackRecordScreenshots,
@@ -42,8 +43,8 @@ const homeSlides = [
     src: '/images/asset 2.webp',
     alt: 'Base de connaissances sur les solutions IA',
     caption: {
-      FR: 'Base de connaissances Notion : 1 128 solutions d’IA indexées, classées et documentées.',
-      EN: 'Notion knowledge base: 1,128 AI solutions indexed, classified and documented.',
+      FR: 'Knowledge Studio \u00b7 1 128 solutions IA class\u00e9es, \u00e9valu\u00e9es et document\u00e9es.',
+      EN: 'Knowledge Studio \u00b7 1,128 AI solutions classified, evaluated and documented.',
     },
   },
   {
@@ -51,8 +52,8 @@ const homeSlides = [
     src: '/images/education/MBA Gen AI.webp',
     alt: 'Atelier de formation IA produit',
     caption: {
-      FR: 'Ateliers et cours : transformer des concepts IA complexes en parcours d’apprentissage.',
-      EN: 'Workshops and courses: turning complex AI concepts into learning paths.',
+      FR: 'Transmission \u00b7 transformer des concepts IA en parcours d\u2019apprentissage.',
+      EN: 'Teaching \u00b7 turning AI concepts into learning paths.',
     },
   },
   {
@@ -60,8 +61,8 @@ const homeSlides = [
     src: '/images/dimum/La Dinum.webp',
     alt: 'Contexte DINUM',
     caption: {
-      FR: 'DINUM : gouvernance UX, DSFR, accessibilité et cohérence à l’échelle.',
-      EN: 'DINUM: UX governance, DSFR, accessibility and consistency at scale.',
+      FR: 'Service public \u00b7 gouvernance UX, DSFR et accessibilit\u00e9 \u00e0 l\u2019\u00e9chelle.',
+      EN: 'Public sector \u00b7 UX governance, DSFR and accessibility at scale.',
     },
   },
   {
@@ -69,17 +70,17 @@ const homeSlides = [
     src: '/images/bnpp/BNP Paribas Design Sprint 2.0.webp',
     alt: 'Design Sprint BNP Paribas',
     caption: {
-      FR: 'BNP Paribas : Design Sprints, UX Center et alignement produit.',
-      EN: 'BNP Paribas: Design Sprints, UX Center and product alignment.',
+      FR: 'Enterprise \u00b7 Design Sprints, UX Center et d\u00e9cision produit.',
+      EN: 'Enterprise \u00b7 Design Sprints, UX Center and product decisions.',
     },
   },
   {
     id: 'github',
     src: '/images/asset 3.webp',
-    alt: 'Activité de pratique et de documentation',
+    alt: 'Activit\u00e9 de pratique et de documentation',
     caption: {
-      FR: 'Pratique quotidienne : contributions, prototypes, déploiements et documentation.',
-      EN: 'Daily practice: contributions, prototypes, deployments and documentation.',
+      FR: 'Ing\u00e9nierie \u00b7 4 655+ contributions, prototypes et d\u00e9ploiements.',
+      EN: 'Engineering \u00b7 4,655+ contributions, prototypes and deployments.',
     },
   },
 ];
@@ -99,18 +100,19 @@ const gradientCoverMap = {
 };
 
 const pageCoverMap = {
-  '/getting-started': { variant: 'editorial' },
-  '/philosophy': { variant: 'knowledge-graph' },
-  '/documentation-principles': { variant: 'editorial' },
-  '/foundations': { variant: 'public-sector' },
-  '/tokens': { variant: 'orange-grid' },
-  '/do-dont': { variant: 'orange-grid' },
-  '/patterns': { variant: 'dark-code' },
-  '/track-record': { variant: 'dark-code' },
-  '/knowledge-system': { variant: 'knowledge-graph' },
-  '/experience': { variant: 'public-sector' },
-  '/resume': { variant: 'editorial' },
-  '/contact': { variant: 'editorial' },
+  '/getting-started': { image: '/covers/cover-02.webp' },
+  '/philosophy': { image: '/covers/cover-01.webp' },
+  '/documentation-principles': { image: '/covers/cover-07.webp' },
+  '/foundations': { image: '/covers/cover-05.webp' },
+  '/tokens': { image: '/covers/cover-08.webp' },
+  '/do-dont': { image: '/covers/cover-03.webp' },
+  '/patterns': { image: '/covers/cover-03.webp' },
+  '/track-record': { image: '/covers/cover-06.webp' },
+  '/knowledge-system': { image: '/covers/cover-07.webp' },
+  '/primitives': { image: '/covers/cover-08.webp' },
+  '/experience': { image: '/covers/cover-06.webp' },
+  '/resume': { image: '/covers/cover-04.webp' },
+  '/contact': { image: '/covers/cover-02.webp' },
   '/experience/dinum': { image: experienceCoverMap['/experience/dinum'] },
   '/experience/bnp-paribas': { image: experienceCoverMap['/experience/bnp-paribas'] },
   '/experience/education': { image: experienceCoverMap['/experience/education'] },
@@ -398,17 +400,47 @@ function RightToc({ sections, panelsOpen }) {
             </a>
           ))}
         </nav>
-        <div className="mt-6 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{language === 'FR' ? 'Citation' : 'Quote'}</p>
-          <p className="mt-2 text-sm leading-6 text-[var(--text)]">
-            {language === 'FR'
-              ? 'La documentation n’est pas une annexe. C’est un produit à part entière.'
-              : 'Documentation is not an appendix. It is a product in itself.'}
-          </p>
-          <p className="mt-3 text-xs text-[var(--muted)]">Tewfiq Ferahi</p>
-        </div>
+        <RotatingQuote language={language} />
       </div>
     </aside>
+  );
+}
+
+const QUOTES = [
+  { FR: 'La documentation n\u2019est que l\u2019interface. Le vrai produit, c\u2019est la compr\u00e9hension.', EN: 'Documentation is only the interface. The real product is understanding.', author: 'Tewfiq Ferahi' },
+  { FR: 'La simplicit\u00e9 est la sophistication supr\u00eame.', EN: 'Simplicity is the ultimate sophistication.', author: 'Leonardo da Vinci' },
+  { FR: 'Ce qui ne peut \u00eatre mesur\u00e9 ne peut \u00eatre am\u00e9lior\u00e9.', EN: 'What gets measured gets managed.', author: 'Peter Drucker' },
+  { FR: 'Le design n\u2019est pas ce \u00e0 quoi \u00e7a ressemble. C\u2019est comment \u00e7a marche.', EN: 'Design is not what it looks like. It\u2019s how it works.', author: 'Steve Jobs' },
+  { FR: 'Les d\u00e9tails ne sont pas des d\u00e9tails. Ils font le design.', EN: 'The details are not the details. They make the design.', author: 'Charles Eames' },
+  { FR: 'La perfection est atteinte non quand il n\u2019y a plus rien \u00e0 ajouter, mais quand il n\u2019y a plus rien \u00e0 retrancher.', EN: 'Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away.', author: 'Antoine de Saint-Exup\u00e9ry' },
+  { FR: '\u00c9crire, c\u2019est penser avec clart\u00e9.', EN: 'Writing is thinking with clarity.', author: 'Tewfiq Ferahi' },
+];
+
+function RotatingQuote({ language }) {
+  const [index, setIndex] = useState(() => Math.floor(Math.random() * QUOTES.length));
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setIndex((i) => (i + 1) % QUOTES.length);
+        setVisible(true);
+      }, 400);
+    }, 12000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const quote = QUOTES[index];
+
+  return (
+    <div className="mt-6 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{language === 'FR' ? 'Citation' : 'Quote'}</p>
+      <div className={cn('transition-opacity duration-400', visible ? 'opacity-100' : 'opacity-0')}>
+        <p className="mt-2 text-sm leading-6 text-[var(--text)]">{quote[language]}</p>
+        <p className="mt-3 text-xs text-[var(--muted)]">{quote.author}</p>
+      </div>
+    </div>
   );
 }
 
@@ -484,6 +516,7 @@ function PageRenderer({ pageKey, page }) {
   if (pageKey === 'patterns') return <PatternsPage page={page} />;
   if (pageKey === 'trackRecord') return <TrackRecordPage page={page} />;
   if (pageKey === 'knowledgeSystem') return <KnowledgeSystemPage page={page} />;
+  if (pageKey === 'primitives') return <PrimitivesPage page={page} />;
   if (pageKey === 'experience') return <ExperienceIndexPage page={page} />;
   if (['dinum', 'bnp', 'education'].includes(pageKey)) return <ExperienceDetailPage pageKey={pageKey} page={page} />;
   if (pageKey === 'resume') return <ResumePage page={page} />;
@@ -495,53 +528,24 @@ function HomePage({ page }) {
   const { language, t } = useLanguage();
   const proof = page.proof[language];
   const chips = page.chips[language];
-  const metadataRows = shared.metadata[language];
-  const startHereCards = [
-    {
-      title: { FR: 'Démarrer', EN: 'Start' },
-      href: '/getting-started',
-      description: { FR: 'Lire cette documentation.', EN: 'Read this documentation.' },
-      cover: 'knowledge-graph',
-    },
-    {
-      title: { FR: 'Philosophie', EN: 'Philosophy' },
-      href: '/philosophy',
-      description: { FR: 'Pourquoi la doc est un produit.', EN: 'Why documentation is product.' },
-      cover: 'editorial',
-    },
-    {
-      title: { FR: 'Système de connaissances', EN: 'Knowledge System' },
-      href: '/knowledge-system',
-      description: { FR: 'Structure, classement, transmission.', EN: 'Structure, classification, transmission.' },
-      cover: 'knowledge-graph',
-    },
-    {
-      title: { FR: 'Pratique', EN: 'Practice' },
-      href: '/track-record',
-      description: { FR: 'Usage IA, code, preuves.', EN: 'AI usage, code, evidence.' },
-      cover: 'dark-code',
-    },
-    {
-      title: { FR: 'Expériences', EN: 'Experience' },
-      href: '/experience',
-      description: { FR: 'Cas concrets et apprentissages.', EN: 'Real cases and learnings.' },
-      cover: 'orange-grid',
-    },
-  ];
+  const primitiveItems = pages.primitives.items[language];
+  const badges = proofBadges[language];
 
   return (
     <>
-      <section className="pb-4 xl:min-h-[calc(100dvh-8rem)] xl:flex xl:items-start xl:pt-6">
+      <section className="pb-4 xl:flex xl:items-start xl:pb-10 xl:pt-6">
         <div className="w-full xl:pt-4">
           <p className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">{page.eyebrow[language]}</p>
-          <p className="mt-1 text-[0.92rem] font-medium text-[var(--muted)]">{language === 'FR' ? 'Bonjour Mistral.' : 'Hello Mistral.'}</p>
-          <h1 className="mt-1.5 max-w-[780px] whitespace-pre-line text-4xl font-semibold leading-[1.02] tracking-normal text-[var(--text)] sm:text-5xl lg:text-[3.35rem]">
+          <h1 className="mt-2 max-w-[780px] whitespace-pre-line text-4xl font-semibold leading-[1.02] tracking-normal text-[var(--text)] sm:text-5xl lg:text-[3.6rem]">
             {page.title[language]}
           </h1>
-          <p className="mt-1.5 max-w-[760px] text-base leading-7 text-[var(--muted)] sm:text-[1.02rem]">
+          <p className="mt-2 max-w-[760px] text-base leading-7 text-[var(--muted)] sm:text-[1.02rem]">
             {page.subtitle[language]}
           </p>
-          <div className="mt-2.5 flex flex-wrap gap-2">
+          <div className="mt-3 inline-flex items-center rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-3 py-1">
+            <span className="text-xs font-semibold text-[var(--accent)]">{page.punchline[language]}</span>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
             {chips.slice(0, 5).map((chip) => (
               <Chip key={chip} label={chip} highlight={chip.toLowerCase().includes('mistral')} />
             ))}
@@ -564,39 +568,23 @@ function HomePage({ page }) {
 
       <HeroSlideshow slides={homeSlides} language={language} />
 
-      <Section id="metadata" title={page.sections[0].title[language]}>
-        <CompactMetadata rows={metadataRows} note={page.secondary[language]} language={language} />
-      </Section>
-
-      <Section id="intro-callout" title={page.sections[1].title[language]}>
-        <details className="group rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
-          <summary className="cursor-pointer list-none text-sm font-semibold text-[var(--text)]">
-            {language === 'FR' ? 'Pourquoi ce format ?' : 'Why this format?'}
-          </summary>
-          <p className="mt-3 max-w-[720px] text-sm leading-6 text-[var(--muted)]">
-            {language === 'FR'
-              ? 'Une page plus rapide à lire, plus visuelle, et pensée pour montrer des preuves avant les explications.'
-              : 'A faster page to scan, more visual, and designed to show proof before explanation.'}
-          </p>
-        </details>
-      </Section>
-
-      <Section id="start-here" title={page.sections[2].title[language]}>
-        <div className="grid grid-flow-col auto-cols-[minmax(210px,1fr)] gap-4 overflow-x-auto pb-2 snap-x snap-mandatory">
-          {startHereCards.map((card) => (
-            <CoverCard
-              key={card.href}
-              href={card.href}
-              title={card.title[language]}
-              description={card.description[language]}
-              cover={card.cover}
-              label={language === 'FR' ? 'DOC' : 'DOC'}
-            />
+      <Section id="primitives" title={page.sections[1].title[language]}>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+          {primitiveItems.map((item) => (
+            <PrimitiveCard key={item.title} title={item.title} caption={item.caption} />
           ))}
         </div>
       </Section>
 
-      <Section id="selected-experience" title={page.sections[3].title[language]}>
+      <Section id="proof" title={page.sections[2].title[language]}>
+        <ProofStrip badges={badges} language={language} />
+      </Section>
+
+      <Section id="knowledge-studio" title={page.sections[3].title[language]}>
+        <KnowledgeStudioSection language={language} />
+      </Section>
+
+      <Section id="field" title={page.sections[4].title[language]}>
         <div className="grid grid-flow-col auto-cols-[minmax(280px,1fr)] gap-4 overflow-x-auto pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 md:overflow-visible md:pb-0">
           {experienceCards[language].map((card) => (
             <ExperienceCoverCard key={card.route} card={card} language={language} />
@@ -604,6 +592,89 @@ function HomePage({ page }) {
         </div>
       </Section>
     </>
+  );
+}
+
+function PrimitiveCard({ title, caption }) {
+  return (
+    <Link
+      href="/primitives"
+      className="group overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-1 hover:border-[var(--accent-border)] hover:shadow-[0_14px_34px_rgba(255,107,53,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+    >
+      <div className="h-16 bg-gradient-to-br from-[var(--accent-soft)] to-[var(--surface-subtle)]" />
+      <div className="p-4">
+        <h3 className="text-sm font-semibold text-[var(--text)]">{title}</h3>
+        <p className="mt-1 text-xs leading-5 text-[var(--muted)]">{caption}</p>
+      </div>
+    </Link>
+  );
+}
+
+function ProofStrip({ badges, language }) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {badges.map((badge) => (
+          <div key={badge.label} className="rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-3 text-center">
+            <p className="text-lg font-semibold text-[var(--text)]">{badge.value}</p>
+            <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{badge.label}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4">
+        <MiniHeatmap />
+      </div>
+      <p className="mt-3 text-xs text-[var(--muted)]">
+        {language === 'FR' ? 'Des traces de pratique, pas des troph\u00e9es.' : 'Traces of practice, not trophies.'}
+      </p>
+    </div>
+  );
+}
+
+function MiniHeatmap() {
+  const levels = [0, 1, 2, 3, 2, 1, 0, 3, 4, 2, 1, 0, 2, 3, 1, 4, 2, 0, 1, 3, 2, 4, 1, 0, 2, 3, 2, 1, 4, 3, 0, 2, 1, 3, 4, 2, 0, 1, 3, 2, 4, 3, 1, 0, 2, 3, 4, 1, 2, 0, 3, 2, 4, 3, 1, 2];
+  return (
+    <div className="grid grid-flow-col grid-rows-7 gap-[3px] overflow-x-auto">
+      {levels.map((level, index) => (
+        <span
+          key={`${level}-${index}`}
+          className={cn(
+            'h-2.5 w-2.5 rounded-[2px] border border-[var(--border)]',
+            level === 0 && 'bg-[var(--surface-subtle)]',
+            level === 1 && 'bg-[#fee5d8]',
+            level === 2 && 'bg-[#ffba87]',
+            level === 3 && 'bg-[#ff7a3d]',
+            level === 4 && 'bg-[#bd3f16]'
+          )}
+        />
+      ))}
+    </div>
+  );
+}
+
+function KnowledgeStudioSection({ language }) {
+  const studioPage = pages.knowledgeSystem;
+  const pipeline = studioPage.pipeline[language];
+  return (
+    <div className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
+      <div className="overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
+        <img src="/images/asset 2.webp" alt="Knowledge Studio" className="h-full w-full object-cover" />
+      </div>
+      <div>
+        <p className="text-sm leading-7 text-[var(--muted)]">{studioPage.subtitle[language]}</p>
+        <ol className="mt-4 space-y-3">
+          {pipeline.map((step, index) => (
+            <li key={step} className="flex items-start gap-3">
+              <span className="mt-1 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[var(--accent-soft)] text-[11px] font-semibold text-[var(--accent)]">
+                {index + 1}
+              </span>
+              <span className="text-sm font-medium text-[var(--text)]">{step}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-5 text-xs leading-5 text-[var(--muted)]">{studioPage.microcopy[language]}</p>
+      </div>
+    </div>
   );
 }
 
@@ -791,13 +862,12 @@ function ExperienceCoverCard({ card, language }) {
         {image ? <img src={image} alt={card.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]" /> : <AbstractCover variant="public-sector" label={card.title} />}
         <div className="absolute inset-0 bg-gradient-to-t from-black/72 via-black/15 to-transparent" />
         <div className="absolute left-4 top-4 rounded-full border border-white/15 bg-black/25 px-2.5 py-1 text-[10px] font-semibold tracking-[0.15em] text-white/90 backdrop-blur">
-          {card.title.toUpperCase()}
+          {(card.label || card.title).toUpperCase()}
         </div>
         <div className="absolute inset-x-4 bottom-4 flex items-end justify-between gap-3 text-white">
           <div className="max-w-[82%]">
-            <h3 className="text-lg font-semibold leading-tight">{card.description}</h3>
+            <h3 className="text-lg font-semibold leading-tight">{card.headline || card.description}</h3>
             <p className="mt-2 text-sm leading-6 text-white/78">{card.role}</p>
-            <p className="mt-3 text-xs font-semibold uppercase tracking-[0.14em] text-white/72">{card.updated}</p>
           </div>
           <span className="rounded-full border border-white/15 bg-white/10 p-2.5 text-white transition group-hover:translate-x-1 group-hover:-translate-y-0.5">
             →
@@ -875,7 +945,7 @@ function GettingStartedPage({ page }) {
                 href={entry.route}
                 title={entry.title[language]}
                 description={route ? route.name[language] : ''}
-                cover={pageCoverMap[entry.route]?.variant || 'editorial'}
+                cover={pageCoverMap[entry.route] || { variant: 'editorial' }}
               />
             );
           })}
@@ -1010,7 +1080,7 @@ function PatternsPage({ page }) {
     [page.sections[1].title[language], language === 'FR' ? 'Une expérience lisible, avec métadonnées, preuves et liens.' : 'A readable experience with metadata, proof and links.'],
     [page.sections[2].title[language], language === 'FR' ? 'Un bloc réutilisable pour nom, titre et capacité à lire vite.' : 'A reusable block for name, title and fast scanning.'],
     [page.sections[3].title[language], language === 'FR' ? 'Petits groupes de faits vérifiables, jamais de bruit décoratif.' : 'Small groups of verifiable facts, never decorative noise.'],
-    [page.sections[4].title[language], language === 'FR' ? 'Un point d’attention, un label, puis une explication utile.' : 'One point of attention, one label, then a useful explanation.'],
+    [page.sections[4].title[language], language === 'FR' ? "Un point d’attention, un label, puis une explication utile." : 'One point of attention, one label, then a useful explanation.'],
     [page.sections[5].title[language], language === 'FR' ? 'Toujours garder une direction de lecture claire.' : 'Always keep a clear reading direction.'],
     [page.sections[6].title[language], language === 'FR' ? 'Les liens donnent le contexte, le système devient navigable.' : 'Links provide context and make the system navigable.'],
   ];
@@ -1064,11 +1134,12 @@ function TrackRecordPage({ page }) {
 
 function KnowledgeSystemPage({ page }) {
   const { language } = useLanguage();
+  const pipeline = page.pipeline[language];
   return (
     <>
       <PageHeader page={page} />
       <Section id="workflow" title={page.sections[0].title[language]}>
-        <WorkflowDiagram steps={workflowSteps[language]} />
+        <WorkflowDiagram steps={pipeline} />
       </Section>
       <Section id="knowledge-cards" title={page.sections[1].title[language]}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -1077,16 +1148,42 @@ function KnowledgeSystemPage({ page }) {
               <h3 className="text-sm font-semibold text-[var(--text)]">{title}</h3>
               <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
                 {language === 'FR'
-                  ? 'Une couche réutilisable du système pour rechercher, comparer, apprendre et décider.'
+                  ? 'Une couche r\u00e9utilisable du syst\u00e8me pour rechercher, comparer, apprendre et d\u00e9cider.'
                   : 'A reusable layer in the system for research, comparison, learning and decisions.'}
               </p>
             </DocSurface>
           ))}
         </div>
       </Section>
-      <Section id="placeholder" title={page.sections[2].title[language]}>
-        <div className="rounded-md border border-dashed border-[var(--accent-border)] bg-[var(--accent-soft)] p-8 text-sm text-[var(--muted)]">
-          {language === 'FR' ? 'Emplacement prévu : capture Notion / base GenAI Solutions.' : 'Planned slot: Notion screenshot / GenAI Solutions database.'}
+      <Section id="screenshot" title={page.sections[2].title[language]}>
+        <div className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
+          <div className="overflow-hidden rounded-[14px] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
+            <img src="/images/asset 2.webp" alt="Knowledge Studio workspace" className="h-full w-full object-cover" />
+          </div>
+          <div>
+            <p className="text-sm leading-7 text-[var(--muted)]">{page.subtitle[language]}</p>
+            <p className="mt-4 text-xs leading-5 text-[var(--muted)]">{page.microcopy[language]}</p>
+          </div>
+        </div>
+      </Section>
+    </>
+  );
+}
+
+function PrimitivesPage({ page }) {
+  const { language } = useLanguage();
+  const items = page.items[language];
+  return (
+    <>
+      <PageHeader page={page} />
+      <Section id="primitives-list" title={page.sections[0].title[language]}>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item) => (
+            <DocSurface key={item.title}>
+              <h3 className="text-sm font-semibold text-[var(--text)]">{item.title}</h3>
+              <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{item.caption}</p>
+            </DocSurface>
+          ))}
         </div>
       </Section>
     </>
@@ -1331,7 +1428,8 @@ function WorkflowDiagram({ steps }) {
   );
 }
 
-function ClickableDocCard({ href, title, description, cover = 'editorial' }) {
+function ClickableDocCard({ href, title, description, cover }) {
+  const coverObj = typeof cover === 'string' ? { variant: cover } : (cover || { variant: 'editorial' });
   return (
     <Link
       href={href}
@@ -1339,7 +1437,11 @@ function ClickableDocCard({ href, title, description, cover = 'editorial' }) {
       aria-label={title}
     >
       <div className="relative h-24 overflow-hidden">
-        <AbstractCover variant={cover} label={title} />
+        {coverObj.image ? (
+          <img src={coverObj.image} alt="" aria-hidden="true" className="h-full w-full object-cover object-center" />
+        ) : (
+          <AbstractCover variant={coverObj.variant || 'editorial'} label={title} />
+        )}
       </div>
       <div className="p-4">
         <div className="flex items-start justify-between gap-4">
@@ -1379,7 +1481,7 @@ function PrincipleCard({ title, definition, why }) {
       <h3 className="text-base font-semibold text-[var(--text)]">{title}</h3>
       <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{language === 'FR' ? 'Définition' : 'Definition'}</p>
       <p className="mt-1 text-sm leading-6 text-[var(--muted)]">{definition}</p>
-      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{language === 'FR' ? 'Pourquoi c’est important' : 'Why it matters'}</p>
+      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{language === 'FR' ? 'Pourquoi c\u2019est important' : 'Why it matters'}</p>
       <p className="mt-1 text-sm leading-6 text-[var(--muted)]">{why}</p>
     </DocSurface>
   );
@@ -1484,7 +1586,7 @@ function RelatedLinks({ keys, title }) {
               href={route.path}
               title={route.name[language]}
               description={pages[key].subtitle?.[language] || route.name[language]}
-              cover={pageCoverMap[route.path]?.variant || 'editorial'}
+              cover={pageCoverMap[route.path] || { variant: 'editorial' }}
             />
           );
         })}
@@ -1559,7 +1661,7 @@ function SearchModal({ open, onClose, language }) {
             <div className="px-3 py-2">
               <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{language === 'FR' ? 'Suggestions' : 'Suggestions'}</p>
               <div className="grid gap-2">
-                {['Documentation as Product', 'Track Record', 'Knowledge System', 'DINUM', 'BNP Paribas', 'Education', 'Tokens', 'Do & Don’t'].map((item) => (
+                {['Documentation as Product', 'Track Record', 'Knowledge Studio', 'DINUM', 'BNP Paribas', 'Education', 'Primitives', "Do & Don’t"].map((item) => (
                   <button
                     key={item}
                     type="button"
