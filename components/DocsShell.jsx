@@ -358,19 +358,19 @@ function Sidebar({ currentKey, mobileOpen, panelsOpen, onNavigate, onTogglePanel
         panelsOpen ? 'xl:translate-x-0 xl:opacity-100 xl:pointer-events-auto' : 'xl:-translate-x-full xl:opacity-0 xl:pointer-events-none'
       )}
     >
-      <div className="mb-5 flex items-start justify-between gap-2">
-        <div>
+      <div className="mb-5">
+        <div className="flex items-center justify-between gap-2">
           <p className="text-sm font-semibold text-[var(--text)]">{labels[language].sidebarTitle}</p>
-          <p className="text-sm text-[var(--muted)]">{labels[language].sidebarSubtitle}</p>
+          <button
+            type="button"
+            onClick={onTogglePanels}
+            className="hidden shrink-0 rounded-md p-1.5 text-[var(--muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] xl:grid xl:place-items-center"
+            aria-label={language === 'FR' ? 'Rétracter les panneaux' : 'Collapse panels'}
+          >
+            <PanelLeftClose className="h-4 w-4" />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onTogglePanels}
-          className="hidden shrink-0 rounded-md p-1.5 text-[var(--muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] xl:grid xl:place-items-center"
-          aria-label={language === 'FR' ? 'Rétracter les panneaux' : 'Collapse panels'}
-        >
-          <PanelLeftClose className="h-4 w-4" />
-        </button>
+        <p className="text-sm text-[var(--muted)]">{labels[language].sidebarSubtitle}</p>
       </div>
       <nav className="space-y-6" aria-label={t.navigation}>
         {navGroups.map((group) => (
@@ -1502,27 +1502,38 @@ function ResumePage({ page }) {
 function ContactPage({ page }) {
   const { language, t } = useLanguage();
 
+  const calRef = useRef(null);
+
   useEffect(() => {
+    function initCal() {
+      if (!window.Cal || !calRef.current) return;
+      window.Cal('init', 'echange-initial-produit-ux-ai2', { origin: 'https://app.cal.com' });
+      window.Cal.config = window.Cal.config || {};
+      window.Cal.config.forwardQueryParams = true;
+      window.Cal.ns['echange-initial-produit-ux-ai2']('inline', {
+        elementOrSelector: calRef.current,
+        config: { layout: 'month_view', useSlotsViewOnSmallScreen: 'true' },
+        calLink: 'tewfiqferahi/echange-initial-produit-ux-ai2',
+      });
+      window.Cal.ns['echange-initial-produit-ux-ai2']('ui', { hideEventTypeDetails: false, layout: 'month_view' });
+    }
+
+    if (window.Cal) {
+      initCal();
+      return;
+    }
+
+    const existing = document.querySelector('script[src="https://app.cal.com/embed/embed.js"]');
+    if (existing) {
+      existing.addEventListener('load', initCal);
+      return () => existing.removeEventListener('load', initCal);
+    }
+
     const script = document.createElement('script');
     script.src = 'https://app.cal.com/embed/embed.js';
     script.async = true;
-    script.onload = () => {
-      if (window.Cal) {
-        window.Cal('init', 'echange-initial-produit-ux-ai2', { origin: 'https://app.cal.com' });
-        window.Cal.config = window.Cal.config || {};
-        window.Cal.config.forwardQueryParams = true;
-        window.Cal.ns['echange-initial-produit-ux-ai2']('inline', {
-          elementOrSelector: '#my-cal-inline-echange-initial-produit-ux-ai2',
-          config: { layout: 'month_view', useSlotsViewOnSmallScreen: 'true' },
-          calLink: 'tewfiqferahi/echange-initial-produit-ux-ai2',
-        });
-        window.Cal.ns['echange-initial-produit-ux-ai2']('ui', { hideEventTypeDetails: false, layout: 'month_view' });
-      }
-    };
+    script.onload = initCal;
     document.head.appendChild(script);
-    return () => {
-      script.remove();
-    };
   }, []);
 
   return (
@@ -1530,7 +1541,7 @@ function ContactPage({ page }) {
       <PageHeader page={page} />
       <Section id="contact-options" title={page.sections[0].title[language]}>
         <div
-          id="my-cal-inline-echange-initial-produit-ux-ai2"
+          ref={calRef}
           className="w-full overflow-auto rounded-[var(--radius-card)] border border-[var(--border)]"
           style={{ minHeight: 600 }}
         />
@@ -1991,10 +2002,10 @@ function Footer() {
             <a className="text-[var(--accent)] hover:text-[var(--accent-hover)]" href={shared.ctaUrl}>
               {t.book}
             </a>
-            <a className="text-[var(--muted)] hover:text-[var(--accent)]" href="#">
+            <a className="text-[var(--muted)] hover:text-[var(--accent)]" href="https://www.linkedin.com/in/tewfiq/" target="_blank" rel="noreferrer">
               LinkedIn
             </a>
-            <a className="text-[var(--muted)] hover:text-[var(--accent)]" href="#">
+            <a className="text-[var(--muted)] hover:text-[var(--accent)]" href="https://github.com/tewfiq" target="_blank" rel="noreferrer">
               GitHub
             </a>
             <a className="text-[var(--muted)] hover:text-[var(--accent)]" href="/CVMISTRALLPD0726.pdf" target="_blank" rel="noreferrer" download>
