@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CalEmbed, { getCalApi } from '@calcom/embed-react';
 import { ArrowRight, ArrowUpRight, BookOpen, ChevronLeft, ChevronRight, Clock, ExternalLink, Menu, Monitor, Moon, Search, Sun, X, Check, PanelLeftClose, PanelLeftOpen, Quote } from 'lucide-react';
 import {
   buildSearchIndex,
@@ -1502,48 +1503,22 @@ function ResumePage({ page }) {
 function ContactPage({ page }) {
   const { language, t } = useLanguage();
 
-  const calRef = useRef(null);
-
   useEffect(() => {
-    function initCal() {
-      if (!window.Cal || !calRef.current) return;
-      window.Cal('init', 'echange-initial-produit-ux-ai2', { origin: 'https://app.cal.com' });
-      window.Cal.config = window.Cal.config || {};
-      window.Cal.config.forwardQueryParams = true;
-      window.Cal.ns['echange-initial-produit-ux-ai2']('inline', {
-        elementOrSelector: calRef.current,
-        config: { layout: 'month_view', useSlotsViewOnSmallScreen: 'true' },
-        calLink: 'tewfiqferahi/echange-initial-produit-ux-ai2',
-      });
-      window.Cal.ns['echange-initial-produit-ux-ai2']('ui', { hideEventTypeDetails: false, layout: 'month_view' });
-    }
-
-    if (window.Cal) {
-      initCal();
-      return;
-    }
-
-    const existing = document.querySelector('script[src="https://app.cal.com/embed/embed.js"]');
-    if (existing) {
-      existing.addEventListener('load', initCal);
-      return () => existing.removeEventListener('load', initCal);
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://app.cal.com/embed/embed.js';
-    script.async = true;
-    script.onload = initCal;
-    document.head.appendChild(script);
+    (async function () {
+      const cal = await getCalApi({ namespace: 'echange-initial-produit-ux-ai2' });
+      cal('ui', { hideEventTypeDetails: false, layout: 'month_view' });
+    })();
   }, []);
 
   return (
     <>
       <PageHeader page={page} />
       <Section id="contact-options" title={page.sections[0].title[language]}>
-        <div
-          ref={calRef}
-          className="w-full overflow-auto rounded-[var(--radius-card)] border border-[var(--border)]"
-          style={{ minHeight: 600 }}
+        <CalEmbed
+          namespace="echange-initial-produit-ux-ai2"
+          calLink="tewfiqferahi/echange-initial-produit-ux-ai2"
+          style={{ width: '100%', height: '100%', overflow: 'scroll', minHeight: 600 }}
+          config={{ layout: 'month_view', useSlotsViewOnSmallScreen: 'true' }}
         />
       </Section>
     </>
