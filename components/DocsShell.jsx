@@ -226,7 +226,7 @@ function AppShell({ pageKey }) {
         )}
       >
         {mobileNavOpen ? <button type="button" aria-label="Close navigation" className="fixed inset-0 z-30 bg-black/25 lg:hidden" onClick={() => setMobileNavOpen(false)} /> : null}
-        <Sidebar currentKey={pageKey} mobileOpen={mobileNavOpen} panelsOpen={panelsOpen} onNavigate={() => setMobileNavOpen(false)} onTogglePanels={() => setPanelsOpen((value) => !value)} />
+        <Sidebar currentKey={pageKey} mobileOpen={mobileNavOpen} panelsOpen={panelsOpen} onNavigate={() => setMobileNavOpen(false)} onTogglePanels={() => setPanelsOpen((value) => !value)} onSearch={() => { setMobileNavOpen(false); setSearchOpen(true); }} />
         <main className={cn(
           'min-w-0 px-4 sm:px-6 lg:px-8',
           isHome
@@ -275,7 +275,7 @@ function Header({ onMenu, onSearch }) {
           </Link>
         </div>
 
-        <div className="mx-auto w-full max-w-[340px]">
+        <div className="mx-auto hidden w-full max-w-[340px] lg:block">
           <button
             type="button"
             onClick={onSearch}
@@ -283,8 +283,8 @@ function Header({ onMenu, onSearch }) {
             aria-label={t.openSearch}
           >
             <Search className="h-4 w-4 shrink-0" />
-            <span className="hidden flex-1 truncate text-left text-xs sm:block">{language === 'FR' ? 'Rechercher…' : 'Search…'}</span>
-            <kbd className="hidden rounded border border-[var(--border)] bg-[var(--bg)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted)] sm:inline">⌘K</kbd>
+            <span className="flex-1 truncate text-left text-xs">{language === 'FR' ? 'Rechercher…' : 'Search…'}</span>
+            <kbd className="rounded border border-[var(--border)] bg-[var(--bg)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted)]">⌘K</kbd>
           </button>
         </div>
 
@@ -341,7 +341,7 @@ function ThemeToggle({ theme, setTheme }) {
 
 /* ─── Sidebar ─── */
 
-function Sidebar({ currentKey, mobileOpen, panelsOpen, onNavigate, onTogglePanels }) {
+function Sidebar({ currentKey, mobileOpen, panelsOpen, onNavigate, onTogglePanels, onSearch }) {
   const { language, t } = useLanguage();
   return (
     <aside
@@ -365,6 +365,14 @@ function Sidebar({ currentKey, mobileOpen, panelsOpen, onNavigate, onTogglePanel
 
       {/* Full content: fades in after width opens, fades out before width closes */}
       <div className={cn('min-w-[228px] px-5 pb-5 transition-opacity duration-150', panelsOpen ? 'xl:opacity-100 xl:delay-200' : 'xl:pointer-events-none xl:opacity-0')}>
+        <button
+          type="button"
+          onClick={onSearch}
+          className="mb-4 flex w-full items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text)] lg:hidden"
+        >
+          <Search className="h-4 w-4 shrink-0" />
+          <span className="flex-1 text-left text-xs">{language === 'FR' ? 'Rechercher…' : 'Search…'}</span>
+        </button>
         <div className="mb-5">
           <p className="text-sm font-semibold text-[var(--text)]">{labels[language].sidebarTitle}</p>
           <p className="text-sm text-[var(--accent)]">{labels[language].sidebarSubtitle}</p>
