@@ -282,8 +282,8 @@ function Header({ onMenu, onSearch }) {
             className="inline-flex w-full items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
             aria-label={t.openSearch}
           >
-            <Search className="h-4 w-4" />
-            <span className="flex-1 truncate text-left text-xs">{language === 'FR' ? 'Rechercher…' : 'Search…'}</span>
+            <Search className="h-4 w-4 shrink-0" />
+            <span className="hidden flex-1 truncate text-left text-xs sm:block">{language === 'FR' ? 'Rechercher…' : 'Search…'}</span>
             <kbd className="hidden rounded border border-[var(--border)] bg-[var(--bg)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted)] sm:inline">⌘K</kbd>
           </button>
         </div>
@@ -589,7 +589,7 @@ function HomePage({ page }) {
     <>
       {/* ─── Section 1: Hero ─── */}
       <motion.section
-        className="relative flex h-[calc(100dvh-3.5rem-3rem)] flex-col justify-center overflow-hidden"
+        className="relative flex min-h-[calc(100dvh-3.5rem-3rem)] flex-col justify-center pb-8 lg:h-[calc(100dvh-3.5rem-3rem)] lg:min-h-0 lg:overflow-hidden lg:pb-0"
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
