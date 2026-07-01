@@ -255,7 +255,7 @@ function Header({ onMenu, onSearch }) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-3 px-4 sm:px-6 lg:px-8 xl:pr-5">
+      <div className="mx-auto flex h-14 max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:justify-start lg:gap-3 lg:px-8 xl:pr-5">
         <div className="flex min-w-0 items-center gap-2.5">
           <button
             type="button"
@@ -269,8 +269,8 @@ function Header({ onMenu, onSearch }) {
             <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[var(--radius-sm)] border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[10px] font-semibold text-[var(--accent)]">
               KS
             </span>
-            <span className="hidden min-w-0 sm:block">
-              <span className="block truncate text-sm font-semibold leading-5 text-[var(--text)]">Knowledge Studio</span>
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-semibold leading-5 text-[var(--text)]"><span className="sm:hidden">by Tewfiq Ferahi</span><span className="hidden sm:inline">Knowledge Studio</span></span>
             </span>
           </Link>
         </div>
@@ -288,7 +288,7 @@ function Header({ onMenu, onSearch }) {
           </button>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1">
+        <div className="flex shrink-0 items-center gap-2">
           <LanguageToggle language={language} setLanguage={setLanguage} />
           <ThemeToggle theme={theme} setTheme={setTheme} />
           <a
