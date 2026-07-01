@@ -371,7 +371,7 @@ function Sidebar({ currentKey, mobileOpen, panelsOpen, onNavigate, onTogglePanel
             <PanelLeftClose className="h-4 w-4" />
           </button>
         </div>
-        <p className="text-sm text-[var(--muted)]">{labels[language].sidebarSubtitle}</p>
+        <p className="text-sm text-[var(--accent)]">{labels[language].sidebarSubtitle}</p>
       </div>
       <nav className="space-y-6" aria-label={t.navigation}>
         {navGroups.map((group) => (
@@ -1557,7 +1557,7 @@ function Chip({ label, highlight = false }) {
         highlight ? 'border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--text)]' : 'border-[var(--border)] bg-[var(--surface)] text-[var(--text)]'
       )}
     >
-      {highlight ? <MistralDot /> : null}
+      {highlight ? <MistralLogo className="h-3.5 w-3.5" /> : null}
       {label}
     </span>
   );
@@ -1967,10 +1967,10 @@ function Footer() {
             <p className="mt-1 text-sm text-[var(--muted)]">Knowledge Studio</p>
             <p className="mt-1 text-sm text-[var(--muted)]">{t.footerRole}</p>
             <p className="mt-4 inline-flex flex-wrap items-center gap-2 text-xs text-[var(--muted)]">
-              <MistralMention>
+              <span className="inline-flex items-center gap-1 rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-2.5 py-1 text-current">
                 <MistralLogo />
                 {shared.mistralVibe[language]}
-              </MistralMention>
+              </span>
             </p>
           </div>
           <nav className="flex flex-wrap gap-4 text-sm" aria-label="Footer">
