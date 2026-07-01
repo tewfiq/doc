@@ -228,10 +228,10 @@ function AppShell({ pageKey }) {
         {mobileNavOpen ? <button type="button" aria-label="Close navigation" className="fixed inset-0 z-30 bg-black/25 lg:hidden" onClick={() => setMobileNavOpen(false)} /> : null}
         <Sidebar currentKey={pageKey} mobileOpen={mobileNavOpen} panelsOpen={panelsOpen} onNavigate={() => setMobileNavOpen(false)} onTogglePanels={() => setPanelsOpen((value) => !value)} />
         <main className={cn(
-          'min-w-0 px-4 py-14 sm:px-6 lg:px-8 xl:py-14',
+          'min-w-0 px-4 sm:px-6 lg:px-8',
           isHome
-            ? 'xl:pl-10 xl:pr-10'
-            : (panelsOpen ? 'xl:pl-10 xl:pr-8' : 'xl:pl-10 xl:pr-10')
+            ? 'py-6 xl:pl-10 xl:pr-10 xl:py-6'
+            : (panelsOpen ? 'py-14 xl:py-14 xl:pl-10 xl:pr-8' : 'py-14 xl:py-14 xl:pl-10 xl:pr-10')
         )}>
           <div className={cn(isHome ? 'mx-auto max-w-[1100px]' : 'mx-auto max-w-[900px]')}>
             {!isHome && <Breadcrumbs pageKey={pageKey} />}
@@ -589,13 +589,13 @@ function HomePage({ page }) {
     <>
       {/* ─── Section 1: Hero ─── */}
       <motion.section
-        className="relative flex min-h-[calc(100dvh-3.5rem)] flex-col justify-center pb-8 xl:pb-16"
+        className="relative flex h-[calc(100dvh-3.5rem-3rem)] flex-col justify-center overflow-hidden"
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
       >
         {lightfallOn && (
-          <div className="pointer-events-none absolute -top-14 bottom-0 left-1/2 z-0 w-screen -translate-x-1/2 overflow-hidden">
+          <div className="pointer-events-none absolute -top-6 bottom-0 left-1/2 z-0 w-screen -translate-x-1/2 overflow-hidden">
             <Lightfall
               colors={['#FF6B2C', '#ff9a73', '#ffd2bd']}
               backgroundColor="#00000000"
