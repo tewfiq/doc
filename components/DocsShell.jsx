@@ -346,7 +346,7 @@ function Sidebar({ currentKey, mobileOpen, panelsOpen, onNavigate, onTogglePanel
   return (
     <aside
       className={cn(
-        'fixed inset-y-14 left-0 z-40 w-[260px] overflow-y-auto border-r border-[var(--border)] bg-[var(--bg)] px-4 py-5 transition-[width] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] lg:sticky lg:block lg:h-[calc(100dvh-3.5rem)] lg:px-5 xl:top-14 xl:overflow-hidden xl:px-0 xl:py-0',
+        'fixed inset-y-14 left-0 z-40 w-[260px] overflow-y-auto border-r border-[var(--border)] bg-[var(--bg)] px-4 py-5 transition-[width] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] lg:sticky lg:block lg:h-[calc(100dvh-3.5rem)] lg:px-5 xl:top-14 xl:overflow-y-auto xl:px-0 xl:py-0',
         mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         panelsOpen ? 'xl:w-[260px]' : 'xl:w-12'
       )}
@@ -595,7 +595,7 @@ function HomePage({ page }) {
         variants={staggerContainer}
       >
         {lightfallOn && (
-          <div className="pointer-events-none absolute inset-y-0 left-1/2 z-0 w-screen -translate-x-1/2 overflow-hidden">
+          <div className="pointer-events-none absolute -top-14 bottom-0 left-1/2 z-0 w-screen -translate-x-1/2 overflow-hidden">
             <Lightfall
               colors={['#FF6B2C', '#ff9a73', '#ffd2bd']}
               backgroundColor="#00000000"
@@ -677,7 +677,11 @@ function HomePage({ page }) {
                 className="group block overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_16px_40px_rgba(255,107,44,0.10)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
               >
                 <div className="relative h-[160px] overflow-hidden">
-                  <AbstractCover variant={card.cover} label={card.title} />
+                  {pageCoverMap[card.href]?.image ? (
+                    <img src={pageCoverMap[card.href].image} alt="" aria-hidden="true" className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]" />
+                  ) : (
+                    <AbstractCover variant={card.cover} label={card.title} />
+                  )}
                 </div>
                 <div className="p-5">
                   <div className="flex items-start justify-between gap-4">
@@ -2009,6 +2013,7 @@ function Footer() {
                 <MistralLogo />
                 {shared.mistralVibe[language]}
               </span>
+              {language === 'FR' ? 'puis Codex et Claude Code' : 'then Codex & Claude Code'}
             </p>
           </div>
           <nav className="flex flex-wrap gap-4 text-sm" aria-label="Footer">
