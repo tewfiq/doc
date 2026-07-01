@@ -291,7 +291,7 @@ function Header({ onMenu, onSearch }) {
           >
             <Search className="h-4 w-4" />
             <span className="flex-1 truncate text-left text-xs">{language === 'FR' ? 'Rechercher…' : 'Search…'}</span>
-            <kbd className="hidden rounded border border-[var(--border)] bg-[var(--bg)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted)] sm:inline">\u2318K</kbd>
+            <kbd className="hidden rounded border border-[var(--border)] bg-[var(--bg)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted)] sm:inline">⌘K</kbd>
           </button>
         </div>
 
