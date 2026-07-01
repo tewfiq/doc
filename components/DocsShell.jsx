@@ -3,7 +3,9 @@ import { useRouter } from 'next/router';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CalEmbed, { getCalApi } from '@calcom/embed-react';
-import { ArrowRight, ArrowUpRight, BookOpen, ChevronLeft, ChevronRight, Clock, ExternalLink, Menu, Monitor, Moon, Search, Sun, X, Check, PanelLeftClose, PanelLeftOpen, Quote } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BookOpen, ChevronLeft, ChevronRight, Clock, ExternalLink, Menu, Monitor, Moon, Search, Sparkles, Sun, X, Check, PanelLeftClose, PanelLeftOpen, Quote } from 'lucide-react';
+import dynamic from 'next/dynamic';
+const Lightfall = dynamic(() => import('./Lightfall'), { ssr: false });
 import {
   buildSearchIndex,
   defaultLanguage,
@@ -219,8 +221,8 @@ function AppShell({ pageKey }) {
         className={cn(
           'mx-auto w-full max-w-[1440px] xl:grid xl:gap-x-8',
           isHome
-            ? (panelsOpen ? 'xl:grid-cols-[260px_minmax(0,1fr)_0px]' : 'xl:grid-cols-[0px_minmax(0,1fr)_0px]')
-            : (panelsOpen ? 'xl:grid-cols-[260px_minmax(0,900px)_220px]' : 'xl:grid-cols-[0px_minmax(0,1fr)_0px]')
+            ? (panelsOpen ? 'xl:grid-cols-[260px_minmax(0,1fr)_0px]' : 'xl:grid-cols-[48px_minmax(0,1fr)_0px]')
+            : (panelsOpen ? 'xl:grid-cols-[260px_minmax(0,900px)_220px]' : 'xl:grid-cols-[48px_minmax(0,1fr)_220px]')
         )}
       >
         {mobileNavOpen ? <button type="button" aria-label="Close navigation" className="fixed inset-0 z-30 bg-black/25 lg:hidden" onClick={() => setMobileNavOpen(false)} /> : null}
@@ -229,7 +231,7 @@ function AppShell({ pageKey }) {
           'min-w-0 px-4 py-14 sm:px-6 lg:px-8 xl:py-14',
           isHome
             ? 'xl:pl-10 xl:pr-10'
-            : (panelsOpen ? 'xl:pl-10 xl:pr-8' : 'xl:pl-12 xl:pr-12')
+            : (panelsOpen ? 'xl:pl-10 xl:pr-8' : 'xl:pl-10 xl:pr-10')
         )}>
           <div className={cn(isHome ? 'mx-auto max-w-[1100px]' : 'mx-auto max-w-[900px]')}>
             {!isHome && <Breadcrumbs pageKey={pageKey} />}
@@ -239,16 +241,6 @@ function AppShell({ pageKey }) {
         </main>
         {!isHome && <RightToc sections={page.sections || []} panelsOpen={panelsOpen} />}
       </div>
-      {!panelsOpen && (
-        <button
-          type="button"
-          onClick={() => setPanelsOpen(true)}
-          className="fixed bottom-6 left-6 z-50 hidden rounded-full border border-[var(--border)] bg-[var(--surface)] p-2.5 text-[var(--muted)] shadow-lg transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] xl:grid xl:place-items-center"
-          aria-label={language === 'FR' ? 'Ouvrir les panneaux' : 'Expand panels'}
-        >
-          <PanelLeftOpen className="h-4 w-4" />
-        </button>
-      )}
       <Footer />
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} language={language} />
     </div>
@@ -263,18 +255,18 @@ function Header({ onMenu, onSearch }) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-3 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-3 px-4 sm:px-6 lg:px-8 xl:pr-5">
         <div className="flex min-w-0 items-center gap-2.5">
           <button
             type="button"
             onClick={onMenu}
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] lg:hidden"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] lg:hidden"
             aria-label={t.navigation}
           >
             <Menu className="h-4 w-4" />
           </button>
-          <Link href="/" className="flex min-w-0 items-center gap-2 rounded-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]">
-            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[10px] font-semibold text-[var(--accent)]">
+          <Link href="/" className="flex min-w-0 items-center gap-2 rounded-[var(--radius-sm)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]">
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-[var(--radius-sm)] border border-[var(--accent-border)] bg-[var(--accent-soft)] text-[10px] font-semibold text-[var(--accent)]">
               KS
             </span>
             <span className="hidden min-w-0 sm:block">
@@ -287,7 +279,7 @@ function Header({ onMenu, onSearch }) {
           <button
             type="button"
             onClick={onSearch}
-            className="inline-flex w-full items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+            className="inline-flex w-full items-center gap-2 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
             aria-label={t.openSearch}
           >
             <Search className="h-4 w-4" />
@@ -301,7 +293,7 @@ function Header({ onMenu, onSearch }) {
           <ThemeToggle theme={theme} setTheme={setTheme} />
           <a
             href={shared.ctaUrl}
-            className="hidden shrink-0 whitespace-nowrap rounded-md bg-[var(--accent)] px-2.5 py-1.5 text-xs font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[var(--accent-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] sm:inline-flex"
+            className="hidden shrink-0 whitespace-nowrap rounded-[var(--radius-sm)] bg-[var(--accent)] px-2.5 py-1.5 text-xs font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[var(--accent-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] sm:inline-flex"
           >
             {t.book}
           </a>
@@ -318,7 +310,7 @@ function LanguageToggle({ language, setLanguage }) {
     <button
       type="button"
       onClick={() => setLanguage(next)}
-      className="grid h-8 w-8 place-items-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-[11px] font-semibold text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      className="grid h-8 w-8 place-items-center rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] text-[11px] font-semibold text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
       aria-label={`${t.language}: ${next}`}
     >
       {language}
@@ -339,7 +331,7 @@ function ThemeToggle({ theme, setTheme }) {
     <button
       type="button"
       onClick={() => setTheme(next)}
-      className="grid h-8 w-8 place-items-center rounded-md border border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      className="grid h-8 w-8 place-items-center rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] transition hover:border-[var(--accent-border)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
       aria-label={`${t.theme}: ${t[theme]}`}
     >
       {icons[theme]}
@@ -354,58 +346,63 @@ function Sidebar({ currentKey, mobileOpen, panelsOpen, onNavigate, onTogglePanel
   return (
     <aside
       className={cn(
-        'fixed inset-y-14 left-0 z-40 w-[260px] overflow-y-auto border-r border-[var(--border)] bg-[var(--bg)] px-4 py-5 transition-[transform,opacity] duration-200 lg:sticky lg:block lg:h-[calc(100dvh-3.5rem)] lg:px-5 xl:top-14 xl:w-[260px]',
+        'fixed inset-y-14 left-0 z-40 w-[260px] overflow-y-auto border-r border-[var(--border)] bg-[var(--bg)] px-4 py-5 transition-[width] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] lg:sticky lg:block lg:h-[calc(100dvh-3.5rem)] lg:px-5 xl:top-14 xl:overflow-hidden xl:px-0 xl:py-0',
         mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
-        panelsOpen ? 'xl:translate-x-0 xl:opacity-100 xl:pointer-events-auto' : 'xl:-translate-x-full xl:opacity-0 xl:pointer-events-none'
+        panelsOpen ? 'xl:w-[260px]' : 'xl:w-12'
       )}
     >
-      <div className="mb-5">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-sm font-semibold text-[var(--text)]">{labels[language].sidebarTitle}</p>
-          <button
-            type="button"
-            onClick={onTogglePanels}
-            className="hidden shrink-0 rounded-md p-1.5 text-[var(--muted)] transition hover:bg-[var(--surface)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] xl:grid xl:place-items-center"
-            aria-label={language === 'FR' ? 'Rétracter les panneaux' : 'Collapse panels'}
-          >
-            <PanelLeftClose className="h-4 w-4" />
-          </button>
-        </div>
-        <p className="text-sm text-[var(--accent)]">{labels[language].sidebarSubtitle}</p>
+      {/* Toggle button — xl only, stays at fixed position */}
+      <div className="hidden xl:flex xl:items-center xl:justify-center xl:py-3" style={{ width: 48 }}>
+        <button
+          type="button"
+          onClick={onTogglePanels}
+          className="grid h-8 w-8 shrink-0 place-items-center rounded-[var(--radius-sm)] text-[var(--muted)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+          aria-label={panelsOpen ? (language === 'FR' ? 'Rétracter les panneaux' : 'Collapse panels') : (language === 'FR' ? 'Ouvrir les panneaux' : 'Expand panels')}
+        >
+          {panelsOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+        </button>
       </div>
-      <nav className="space-y-6" aria-label={t.navigation}>
-        {navGroups.map((group) => (
-          <div key={group.title[language]}>
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{group.title[language]}</p>
-            <div className="space-y-0.5">
-              {group.items.map((key) => {
-                const route = getRouteByKey(key);
-                if (!route) return null;
-                const active = key === currentKey;
-                return (
-                  <Link
-                    key={key}
-                    href={route.path}
-                    onClick={onNavigate}
-                    className={cn(
-                      'group flex items-center gap-2 rounded-md px-3 py-2 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
-                      active ? 'bg-[var(--accent-soft)] text-[var(--accent)]' : 'text-[var(--muted)] hover:bg-[var(--surface)] hover:text-[var(--text)]'
-                    )}
-                  >
-                    <span
+
+      {/* Full content: fades in after width opens, fades out before width closes */}
+      <div className={cn('min-w-[228px] px-5 pb-5 transition-opacity duration-150', panelsOpen ? 'xl:opacity-100 xl:delay-200' : 'xl:pointer-events-none xl:opacity-0')}>
+        <div className="mb-5">
+          <p className="text-sm font-semibold text-[var(--text)]">{labels[language].sidebarTitle}</p>
+          <p className="text-sm text-[var(--accent)]">{labels[language].sidebarSubtitle}</p>
+        </div>
+        <nav className="space-y-6" aria-label={t.navigation}>
+          {navGroups.map((group) => (
+            <div key={group.title[language]}>
+              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{group.title[language]}</p>
+              <div className="space-y-0.5">
+                {group.items.map((key) => {
+                  const route = getRouteByKey(key);
+                  if (!route) return null;
+                  const active = key === currentKey;
+                  return (
+                    <Link
+                      key={key}
+                      href={route.path}
+                      onClick={onNavigate}
                       className={cn(
-                        'h-1.5 w-1.5 rounded-full transition',
-                        active ? 'bg-[var(--accent)]' : 'bg-[var(--border-strong)] group-hover:bg-[var(--accent)]'
+                        'group flex items-center gap-2 rounded-[var(--radius-sm)] px-3 py-2 text-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
+                        active ? 'bg-[var(--accent-soft)] text-[var(--accent)]' : 'text-[var(--muted)] hover:bg-[var(--surface)] hover:text-[var(--text)]'
                       )}
-                    />
-                    {route.name[language]}
-                  </Link>
-                );
-              })}
+                    >
+                      <span
+                        className={cn(
+                          'h-1.5 w-1.5 rounded-full transition',
+                          active ? 'bg-[var(--accent)]' : 'bg-[var(--border-strong)] group-hover:bg-[var(--accent)]'
+                        )}
+                      />
+                      {route.name[language]}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
-      </nav>
+          ))}
+        </nav>
+      </div>
     </aside>
   );
 }
@@ -418,27 +415,28 @@ function RightToc({ sections, panelsOpen }) {
 
   return (
     <aside
-      className={cn(
-        'hidden shrink-0 transition-[transform,opacity] duration-200 xl:block xl:w-[220px]',
-        panelsOpen ? 'xl:translate-x-0 xl:opacity-100 xl:pointer-events-auto' : 'xl:translate-x-full xl:opacity-0 xl:pointer-events-none'
-      )}
+      className="hidden shrink-0 xl:block xl:w-[220px]"
     >
       <div className="sticky top-14 px-5 py-8">
-        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{t.onThisPage}</p>
-        <nav className="space-y-0.5 border-l border-[var(--border)] pl-3" aria-label={t.onThisPage}>
-          {sections.map((section) => (
-            <a
-              key={section.id}
-              href={`#${section.id}`}
-              className={cn(
-                'block rounded px-2 py-1.5 text-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
-                activeId === section.id ? 'text-[var(--accent)]' : 'text-[var(--muted)] hover:text-[var(--text)]'
-              )}
-            >
-              {section.title[language]}
-            </a>
-          ))}
-        </nav>
+        {panelsOpen && (
+          <>
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{t.onThisPage}</p>
+            <nav className="space-y-0.5 border-l border-[var(--border)] pl-3" aria-label={t.onThisPage}>
+              {sections.map((section) => (
+                <a
+                  key={section.id}
+                  href={`#${section.id}`}
+                  className={cn(
+                    'block rounded px-2 py-1.5 text-xs transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
+                    activeId === section.id ? 'text-[var(--accent)]' : 'text-[var(--muted)] hover:text-[var(--text)]'
+                  )}
+                >
+                  {section.title[language]}
+                </a>
+              ))}
+            </nav>
+          </>
+        )}
         <RotatingQuote language={language} />
       </div>
     </aside>
@@ -474,7 +472,7 @@ function RotatingQuote({ language }) {
   const quote = QUOTES[index];
 
   return (
-    <div className="mt-6 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+    <div className="mt-6 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-4">
       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{language === 'FR' ? 'Citation' : 'Quote'}</p>
       <div className={cn('transition-opacity duration-400', visible ? 'opacity-100' : 'opacity-0')}>
         <p className="mt-2 text-sm leading-6 text-[var(--text)]">{quote[language]}</p>
@@ -532,7 +530,7 @@ function PageHeader({ page, children }) {
   const cover = pageCoverMap[page.path] || { variant: 'editorial' };
   return (
     <header className="mb-8 border-b border-[var(--border)] pb-10">
-      <div className="mb-6 overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
+      <div className="mb-6 overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
         <div className="relative isolate h-[180px] sm:h-[220px]">
           {cover.image ? (
             <img src={cover.image} alt="" aria-hidden="true" className="h-full w-full object-cover" style={cover.position ? { objectPosition: cover.position } : undefined} />
@@ -575,6 +573,7 @@ function PageRenderer({ pageKey, page }) {
 
 function HomePage({ page }) {
   const { language, t } = useLanguage();
+  const [lightfallOn, setLightfallOn] = useState(true);
   const proof = page.proof[language];
   const chips = page.chips[language];
   const discover = discoverCards[language];
@@ -590,35 +589,68 @@ function HomePage({ page }) {
     <>
       {/* ─── Section 1: Hero ─── */}
       <motion.section
-        className="pb-8 xl:pb-16 xl:pt-8"
+        className="relative flex min-h-[calc(100dvh-3.5rem)] flex-col justify-center pb-8 xl:pb-16"
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
       >
-        <motion.p variants={fadeInUp} className="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
+        {lightfallOn && (
+          <div className="pointer-events-none absolute inset-y-0 left-1/2 z-0 w-screen -translate-x-1/2 overflow-hidden">
+            <Lightfall
+              colors={['#FF6B2C', '#ff9a73', '#ffd2bd']}
+              backgroundColor="#00000000"
+              speed={0.4}
+              streakCount={6}
+              streakWidth={0.8}
+              streakLength={1.2}
+              glow={0.6}
+              density={0.5}
+              twinkle={0.8}
+              zoom={3}
+              backgroundGlow={0}
+              opacity={0.4}
+              mouseInteraction={false}
+            />
+          </div>
+        )}
+        <motion.button
+          variants={fadeInUp}
+          type="button"
+          onClick={() => setLightfallOn(v => !v)}
+          className={[
+            'relative z-[1] ml-auto mt-0 grid h-8 w-8 place-items-center rounded-[var(--radius-sm)] border transition',
+            lightfallOn
+              ? 'border-[var(--accent-border)] bg-[var(--accent-soft)] text-[var(--accent)]'
+              : 'border-[var(--border)] bg-[var(--surface)] text-[var(--muted)] hover:border-[var(--accent-border)] hover:text-[var(--text)]'
+          ].join(' ')}
+          aria-label="Toggle light effect"
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+        </motion.button>
+        <motion.p variants={fadeInUp} className="relative z-[1] text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[var(--accent)]">
           {page.eyebrow[language]}
         </motion.p>
-        <motion.h1 variants={fadeInUp} className="mt-3 max-w-[900px] whitespace-pre-line text-4xl font-semibold leading-[1.02] tracking-[-0.02em] text-[var(--text)] sm:text-5xl lg:text-[4.5rem]">
+        <motion.h1 variants={fadeInUp} className="relative z-[1] mt-4 max-w-[900px] whitespace-pre-line text-4xl font-semibold leading-[1.02] tracking-[-0.02em] text-[var(--text)] sm:text-5xl lg:text-[4.5rem]">
           {page.title[language]}
         </motion.h1>
-        <motion.p variants={fadeInUp} className="mt-3 max-w-[760px] text-lg leading-7 text-[var(--muted)]">
+        <motion.p variants={fadeInUp} className="relative z-[1] mt-4 max-w-[760px] text-lg leading-7 text-[var(--muted)]">
           {page.subtitle[language]}
         </motion.p>
-        <motion.div variants={fadeInUp} className="mt-4 inline-flex items-center rounded-full border border-[var(--accent-border)] bg-[var(--accent-soft)] px-4 py-1.5">
-          <span className="text-[13px] font-semibold text-[var(--accent)]">{page.description[language]}</span>
-        </motion.div>
-        <motion.div variants={fadeInUp} className="mt-4 flex flex-wrap gap-2">
+        <motion.p variants={fadeInUp} className="relative z-[1] mt-5 max-w-[640px] whitespace-pre-line border-l-2 border-[var(--accent)] pl-4 text-[15px] leading-relaxed text-[var(--text)]">
+          {page.description[language]}
+        </motion.p>
+        <motion.div variants={fadeInUp} className="relative z-[1] mt-5 flex flex-wrap gap-2">
           {chips.slice(0, 5).map((chip) => (
             <Chip key={chip} label={chip} highlight={chip.toLowerCase().includes('mistral')} />
           ))}
         </motion.div>
-        <motion.div variants={fadeInUp}>
+        <motion.div variants={fadeInUp} className="relative z-[1]">
           <StatRow
-            className="mt-5"
+            className="mt-6"
             items={proof.map((item) => ({ value: item.value, label: item.label }))}
           />
         </motion.div>
-        <motion.div variants={fadeInUp} className="mt-5 flex flex-wrap gap-3">
+        <motion.div variants={fadeInUp} className="relative z-[1] mt-6 flex flex-wrap gap-3">
           <Button href={page.ctas.primary.href}>{page.ctas.primary[language]}</Button>
           <Button href={page.ctas.secondary.href} variant="secondary">
             {page.ctas.secondary[language]}
@@ -642,7 +674,7 @@ function HomePage({ page }) {
             <motion.div key={card.key} variants={fadeInUp}>
               <Link
                 href={card.href}
-                className="group block overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_16px_40px_rgba(255,107,44,0.10)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+                className="group block overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_16px_40px_rgba(255,107,44,0.10)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
               >
                 <div className="relative h-[160px] overflow-hidden">
                   <AbstractCover variant={card.cover} label={card.title} />
@@ -660,39 +692,45 @@ function HomePage({ page }) {
         </motion.div>
       </HomeSection>
 
-      {/* ─── Section 4: Latest Objects ─── */}
+      {/* ─── Section 4: Latest Objects (Bento) ─── */}
       <HomeSection id="latest" title={language === 'FR' ? 'Construits récemment' : 'Recently built'}>
         <motion.div
-          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-50px' }}
         >
-          {latest.map((item) => (
-            <motion.div key={item.title} variants={fadeInUp}>
-              <Link
-                href={item.href}
-                className="group flex items-start justify-between gap-3 rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] p-4 transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_12px_32px_rgba(255,107,44,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
-              >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-semibold text-[var(--text)]">{item.title}</h3>
-                    {item.tag && (
-                      <span className="rounded-full bg-[var(--accent)] px-2 py-0.5 text-[10px] font-semibold text-white">
-                        {item.tag}
-                      </span>
-                    )}
+          {latest.map((item, i) => {
+            const featured = i < 2 || i >= latest.length - 2;
+            return (
+              <motion.div key={item.title} variants={fadeInUp} className={cn(featured && 'sm:col-span-2 xl:col-span-2')}>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    'group flex h-full items-start justify-between gap-3 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_12px_32px_rgba(255,107,44,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
+                    featured ? 'p-5 xl:p-6' : 'p-4'
+                  )}
+                >
+                  <div className="min-w-0">
+                    <div className="flex items-start gap-2">
+                      <h3 className={cn('font-semibold leading-5 text-[var(--text)]', featured ? 'text-base xl:text-lg xl:leading-6' : 'min-h-[2.5rem] text-sm')}>{item.title}</h3>
+                      {item.tag && (
+                        <span className="mt-0.5 shrink-0 rounded-full bg-[var(--accent)] px-2 py-0.5 text-[10px] font-semibold text-white">
+                          {item.tag}
+                        </span>
+                      )}
+                    </div>
+                    <p className={cn('flex items-center gap-1 text-[var(--muted)]', featured ? 'mt-2 text-sm' : 'mt-1.5 text-xs')}>
+                      <Clock className="h-3 w-3" />
+                      {item.time}
+                    </p>
                   </div>
-                  <p className="mt-1.5 flex items-center gap-1 text-xs text-[var(--muted)]">
-                    <Clock className="h-3 w-3" />
-                    {item.time}
-                  </p>
-                </div>
-                <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-[var(--accent)] opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100" />
-              </Link>
-            </motion.div>
-          ))}
+                  <ArrowRight className={cn('shrink-0 text-[var(--accent)] opacity-0 transition group-hover:translate-x-1 group-hover:opacity-100', featured ? 'mt-1 h-5 w-5' : 'mt-0.5 h-4 w-4')} />
+                </Link>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </HomeSection>
 
@@ -709,7 +747,7 @@ function HomePage({ page }) {
             <motion.div key={card.title} variants={fadeInUp}>
               <Link
                 href={card.href}
-                className="group block rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] p-5 transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_12px_32px_rgba(255,107,44,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+                className="group block rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-5 transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_12px_32px_rgba(255,107,44,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
               >
                 <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">{card.category}</p>
                 <h3 className="mt-2 text-sm font-semibold text-[var(--text)] group-hover:text-[var(--accent)]">{card.title}</h3>
@@ -752,7 +790,7 @@ function HomePage({ page }) {
           viewport={{ once: true, margin: '-50px' }}
           variants={fadeInUp}
         >
-          <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
+          <div className="overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
             <img src="/images/asset 2.webp" alt="Knowledge Studio" className="h-full w-full object-cover" />
           </div>
           <div>
@@ -804,7 +842,7 @@ function HomePage({ page }) {
         >
           {testimonialList.map((testimonial, index) => (
             <motion.div key={index} variants={fadeInUp}>
-              <div className="rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] p-6">
+              <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-6">
                 <Quote className="h-5 w-5 text-[var(--accent)] opacity-50" />
                 <p className="mt-3 text-sm leading-7 text-[var(--text)]">&ldquo;{testimonial.quote}&rdquo;</p>
                 <p className="mt-4 text-xs font-semibold text-[var(--muted)]">{testimonial.author}</p>
@@ -868,7 +906,7 @@ function HeroSlideshow({ slides, language }) {
   return (
     <section className="mb-8">
       <div
-        className="group relative overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_20px_60px_rgba(23,19,15,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]"
+        className="group relative overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_20px_60px_rgba(23,19,15,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]"
         tabIndex={0}
         onKeyDown={onKeyDown}
         onMouseEnter={() => setPaused(true)}
@@ -955,7 +993,7 @@ function HeroSlideshow({ slides, language }) {
 
 function StatRow({ items, className = '' }) {
   return (
-    <div className={cn('mt-6 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]', className)}>
+    <div className={cn('mt-6 overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)]', className)}>
       <div className="grid divide-y divide-[var(--border)] sm:grid-cols-4 sm:divide-x sm:divide-y-0">
         {items.map((item) => (
           <div key={`${item.value}-${item.label}`} className="px-4 py-3 sm:px-5 sm:py-4">
@@ -974,7 +1012,7 @@ function ExperienceCoverCard({ card, language }) {
   return (
     <Link
       href={card.route}
-      className="group relative isolate block overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_18px_50px_rgba(23,19,15,0.12)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      className="group relative isolate block overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_18px_50px_rgba(23,19,15,0.12)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
     >
       <div className="relative h-[220px] overflow-hidden">
         {image ? <img src={image} alt={card.title} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" /> : <AbstractCover variant="public-sector" label={card.title} />}
@@ -1026,7 +1064,7 @@ function PrimitiveCard({ title, caption }) {
   return (
     <Link
       href="/primitives"
-      className="group overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_14px_34px_rgba(255,107,53,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      className="group overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_14px_34px_rgba(255,107,53,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
     >
       <div className="h-16 bg-gradient-to-br from-[var(--accent-soft)] to-[var(--surface-subtle)]" />
       <div className="p-4">
@@ -1039,10 +1077,10 @@ function PrimitiveCard({ title, caption }) {
 
 function ProofStrip({ badges, language }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+    <div className="overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-5">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {badges.map((badge) => (
-          <div key={badge.label} className="rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-3 text-center">
+          <div key={badge.label} className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-3 text-center">
             <p className="text-lg font-semibold text-[var(--text)]">{badge.value}</p>
             <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{badge.label}</p>
           </div>
@@ -1084,7 +1122,7 @@ function KnowledgeStudioSection({ language }) {
   const pipeline = studioPage.pipeline[language];
   return (
     <div className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
-      <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
+      <div className="overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
         <img src="/images/asset 2.webp" alt="Knowledge Studio" className="h-full w-full object-cover" />
       </div>
       <div>
@@ -1228,7 +1266,7 @@ function TokensPage({ page }) {
             {item.id === 'color' || item.id === 'semantic' ? (
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 {item.data.map((token) => (
-                  <div key={token.name} className="overflow-hidden rounded-md border border-[var(--border)] bg-[var(--surface)]">
+                  <div key={token.name} className="overflow-hidden rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)]">
                     <div className="h-16 border-b border-[var(--border)]" style={{ background: token.value }} />
                     <div className="p-3">
                       <p className="text-sm font-medium text-[var(--text)]">{token.name}</p>
@@ -1363,7 +1401,7 @@ function KnowledgeSystemPage({ page }) {
       </Section>
       <Section id="screenshot" title={page.sections[2].title[language]}>
         <div className="grid gap-6 md:grid-cols-[1.4fr_1fr]">
-          <div className="overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
+          <div className="overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] shadow-[0_14px_36px_rgba(23,19,15,0.08)]">
             <img src="/images/asset 2.webp" alt="Knowledge Studio workspace" className="h-full w-full object-cover" />
           </div>
           <div>
@@ -1489,7 +1527,7 @@ function ResumePage({ page }) {
             target="_blank"
             rel="noreferrer"
             download
-            className="inline-flex items-center gap-2 rounded-md bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[var(--accent-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+            className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[var(--accent-hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
           >
             <ArrowUpRight className="h-4 w-4" />
             {language === 'FR' ? 'Télécharger le CV' : 'Download CV'}
@@ -1538,7 +1576,7 @@ function Section({ id, title, children }) {
 
 function Button({ href, children, variant = 'primary' }) {
   const className = cn(
-    'inline-flex items-center justify-center rounded-md px-4 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
+    'inline-flex items-center justify-center rounded-[var(--radius-sm)] px-4 py-2.5 text-sm font-semibold transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
     variant === 'primary'
       ? 'bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]'
       : 'border border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:border-[var(--accent-border)] hover:bg-[var(--accent-soft)]'
@@ -1599,7 +1637,7 @@ function TextWithMistralLogo({ text }) {
 function MetadataTable({ rows, stacked = false }) {
   if (!rows?.length) return null;
   return (
-    <div className="overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)]">
+    <div className="overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)]">
       <dl className={cn('grid gap-px bg-[var(--border)] text-sm', stacked ? 'grid-cols-1' : 'sm:grid-cols-2')}>
         {rows.map(([label, value]) => (
           <div key={`${label}-${value}`} className="grid grid-cols-[120px_1fr] gap-3 bg-[var(--surface)] px-4 py-3">
@@ -1655,7 +1693,7 @@ function WorkflowDiagram({ steps }) {
   return (
     <ol className="grid gap-6 md:grid-cols-6 md:gap-6">
       {steps.map((step, index) => (
-        <li key={step} className="relative rounded-md border border-[var(--accent-border)] bg-[var(--accent-soft)] p-3">
+        <li key={step} className="relative rounded-[var(--radius-sm)] border border-[var(--accent-border)] bg-[var(--accent-soft)] p-3">
           <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--accent)]">{String(index + 1).padStart(2, '0')}</span>
           <p className="mt-2 text-sm font-medium text-[var(--text)]">{step}</p>
           {index < steps.length - 1 ? (
@@ -1679,7 +1717,7 @@ function ClickableDocCard({ href, title, description, cover }) {
   return (
     <Link
       href={href}
-      className="group block overflow-hidden rounded-[var(--radius-card)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_14px_34px_rgba(255,107,53,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      className="group block overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] transition hover:-translate-y-[3px] hover:border-[var(--accent-border)] hover:shadow-[0_14px_34px_rgba(255,107,53,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
       aria-label={title}
     >
       <div className="relative h-24 overflow-hidden">
@@ -1715,7 +1753,7 @@ function PrincipleCard({ title, definition, why }) {
 
 function ComparisonCard({ label, text, negative = false }) {
   return (
-    <div className={cn('rounded-[var(--radius-card)] border bg-[var(--surface)] p-5', negative ? 'border-[var(--accent-border)]' : 'border-[var(--border)]')}>
+    <div className={cn('rounded-[var(--radius)] border bg-[var(--surface)] p-5', negative ? 'border-[var(--accent-border)]' : 'border-[var(--border)]')}>
       <div className="flex items-center gap-2">
         <span className={cn('grid h-8 w-8 place-items-center rounded-full', negative ? 'bg-[var(--accent-soft)] text-[var(--accent)]' : 'bg-[var(--surface-subtle)] text-[var(--muted)]')}>
           {negative ? <X className="h-4 w-4" /> : <Check className="h-4 w-4" />}
@@ -1731,7 +1769,7 @@ function BulletList({ items }) {
   return (
     <ul className="grid gap-3 sm:grid-cols-2">
       {items.map((item) => (
-        <li key={item} className="flex gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 text-sm text-[var(--muted)]">
+        <li key={item} className="flex gap-3 rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-4 text-sm text-[var(--muted)]">
           <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />
           {item}
         </li>
@@ -1744,7 +1782,7 @@ function MediaGrid({ images }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       {images.map((image) => (
-        <figure key={image.src} className="overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)]">
+        <figure key={image.src} className="overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)]">
           <img src={image.src} alt={image.alt} loading="lazy" className="h-56 w-full object-cover" />
           <figcaption className="border-t border-[var(--border)] px-4 py-3 text-xs font-medium text-[var(--muted)]">{image.caption}</figcaption>
         </figure>
@@ -1762,7 +1800,7 @@ function EvidenceGrid({ images }) {
           href={image.src}
           target="_blank"
           rel="noreferrer"
-          className="group overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--surface)] transition hover:border-[var(--accent-border)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+          className="group overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] transition hover:border-[var(--accent-border)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
         >
           <span className="block bg-[var(--surface-subtle)]">
             <img src={image.src} alt={image.alt} loading="lazy" className="h-52 w-full object-cover object-top transition duration-200 group-hover:scale-[1.01]" />
@@ -1778,7 +1816,7 @@ function EvidenceGrid({ images }) {
 }
 
 function DocSurface({ children }) {
-  return <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-5">{children}</div>;
+  return <div className="rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] p-5">{children}</div>;
 }
 
 function RelatedLinks({ keys, title }) {
@@ -1822,7 +1860,7 @@ function PrevNextLink({ label, route, language, alignRight }) {
     <Link
       href={route.path}
       className={cn(
-        'group block rounded-md border border-[var(--border)] bg-[var(--surface)] p-4 transition hover:border-[var(--accent-border)] hover:bg-[var(--accent-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
+        'group block rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] p-4 transition hover:border-[var(--accent-border)] hover:bg-[var(--accent-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]',
         alignRight && 'sm:text-right'
       )}
     >
@@ -1906,7 +1944,7 @@ function SearchModal({ open, onClose, language }) {
 
   return (
     <div className="fixed inset-0 z-[80] bg-black/35 p-4" role="dialog" aria-modal="true" aria-label={t.search} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="mx-auto mt-[12vh] max-w-xl overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xl">
+      <div className="mx-auto mt-[12vh] max-w-xl overflow-hidden rounded-[var(--radius)] border border-[var(--border)] bg-[var(--surface)] shadow-xl">
         <div className="flex items-center gap-3 border-b border-[var(--border)] px-4 py-3">
           <Search className="h-4 w-4 text-[var(--muted)]" />
           <input
@@ -1934,7 +1972,7 @@ function SearchModal({ open, onClose, language }) {
                 onClick={() => navigate(item.path)}
                 onMouseEnter={() => setSelected(i)}
                 className={cn(
-                  'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
+                  'flex w-full items-center gap-3 rounded-[var(--radius-sm)] px-3 py-2.5 text-left transition-colors',
                   i === selected ? 'bg-[var(--accent-soft)]' : 'hover:bg-[var(--accent-soft)]/50'
                 )}
               >

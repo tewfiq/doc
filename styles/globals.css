@@ -12,7 +12,8 @@
   --accent-hover: #e55a2b;
   --accent-soft: #fff0e8;
   --accent-border: #ffd2bd;
-  --radius-card: 20px;
+  --radius: 20px;
+  --radius-sm: 10px;
 }
 
 html.dark {
@@ -114,6 +115,12 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.lightfall-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {
